@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/src/" />
+  <Folder Name="/src/backend/" />
+  <Folder Name="/src/backend/services/" />
+  <Folder Name="/src/backend/services/HotelManagement/">
+    <Project Path="HotelManagement.API/HotelManagement.API.csproj" Id="4933fbb2-17d4-4b49-8a8f-e7fc2346b3d6" />
+    <Project Path="HotelManagement.Application/HotelManagement.Application.csproj" Id="ad7408c7-212f-42b7-850c-622e49cd4153" />
+    <Project Path="HotelManagement.Domain/HotelManagement.Domain.csproj" Id="771b9574-be45-4778-9148-1e33be209e71" />
+    <Project Path="HotelManagement.Infrastructure/HotelManagement.Infrastructure.csproj" Id="a7a92d08-29ac-4a77-ae12-86499649da1f" />
+    <Project Path="HotelManagement.Persistence/HotelManagement.Persistence.csproj" Id="4ad8eaa1-19e7-4215-bbcf-d0fd1138fd26" />
+  </Folder>
+  <Folder Name="/src/frontend/" />
+</Solution>
