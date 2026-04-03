@@ -1,7 +1,8 @@
-﻿using HotelManagement.Application.DI;
+﻿using HotelManagement.API.Common;
+using HotelManagement.API.DI;
+using HotelManagement.Application.DI;
 using HotelManagement.Infrastructure.DI;
 using HotelManagement.Persistence.DI;
-using HotelManagement.API.DI;
 
 namespace HotelManagement.API.Extensions
 {
@@ -11,7 +12,7 @@ namespace HotelManagement.API.Extensions
         {
             builder.Services
                 .AddApplication()
-                .AddInfrastructure()
+                .AddInfrastructure(builder.Configuration)
                 .AddPersistence()
                 .AddPresentation();
 
@@ -25,13 +26,19 @@ namespace HotelManagement.API.Extensions
                 app.MapOpenApi();
             }
 
-            // Подключение endpoints
-            // app.UseXXXEdpoits();
             app.MapEndpoints();
 
             return app;
         }
 
-        private static IServiceCollection AddAEndPo
+        private static WebApplication MapEndpoints(this WebApplication app)
+        {
+            var endpoints = app.Services.GetRequiredService<IEnumerable<IEndpoint>>();
+            foreach (var endpoint in endpoints)
+            {
+                endpoint.MapEndpoint(app);
+            }
+            return app;
+        }
     }
 }

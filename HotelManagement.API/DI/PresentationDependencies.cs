@@ -18,6 +18,8 @@ namespace HotelManagement.API.DI
                 services.AddScoped(typeof(IEndpoint), type);
             }
 
+            services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
+
             return services;
         }
     }

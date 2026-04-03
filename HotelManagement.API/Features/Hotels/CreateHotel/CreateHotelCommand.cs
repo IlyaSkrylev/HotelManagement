@@ -1,4 +1,6 @@
-﻿using MediatR;
+﻿using HotelManagement.Application.Common.Interfaces;
+using HotelManagement.Domain.Entities;
+using MediatR;
 
 namespace HotelManagement.API.Features.Hotels.CreateHotel
 {
@@ -40,8 +42,8 @@ namespace HotelManagement.API.Features.Hotels.CreateHotel
                 Email = request.Email,
                 Description = request.Description,
                 CreatedById = _currentUserService.UserId,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
+                CreatedAt = DateTimeOffset.UtcNow,
+                UpdatedAt = DateTimeOffset.UtcNow
             };
 
             _context.Hotels.Add(hotel);
