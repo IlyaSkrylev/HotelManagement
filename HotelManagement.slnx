@@ -9,5 +9,10 @@
     <Project Path="HotelManagement.Infrastructure/HotelManagement.Infrastructure.csproj" Id="a7a92d08-29ac-4a77-ae12-86499649da1f" />
     <Project Path="HotelManagement.Persistence/HotelManagement.Persistence.csproj" Id="4ad8eaa1-19e7-4215-bbcf-d0fd1138fd26" />
   </Folder>
-  <Folder Name="/src/frontend/" />
+  <Folder Name="/src/frontend/">
+    <Project Path="hotel-management-client/hotel-management-client.esproj">
+      <Build />
+      <Deploy />
+    </Project>
+  </Folder>
 </Solution>

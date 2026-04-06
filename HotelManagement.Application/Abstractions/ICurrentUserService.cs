@@ -1,4 +1,4 @@
-﻿namespace HotelManagement.Application.Common.Interfaces;
+﻿namespace HotelManagement.Application.Abstractions;
 
 public interface ICurrentUserService
 {

@@ -1,7 +1,7 @@
 ﻿using HotelManagement.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace HotelManagement.Application.Common.Interfaces;
+namespace HotelManagement.Application.Abstractions;
 
 public interface IApplicationDbContext
 {

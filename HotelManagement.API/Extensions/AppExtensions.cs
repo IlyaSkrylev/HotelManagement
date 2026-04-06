@@ -4,41 +4,45 @@ using HotelManagement.Application.DI;
 using HotelManagement.Infrastructure.DI;
 using HotelManagement.Persistence.DI;
 
-namespace HotelManagement.API.Extensions
+namespace HotelManagement.API.Extensions;
+
+public static class AppExtensions
 {
-    public static class AppExtensions
+    public static WebApplicationBuilder AddApplication(this WebApplicationBuilder builder)
     {
-        public static WebApplicationBuilder AddApplication(this WebApplicationBuilder builder)
-        {
-            builder.Services
-                .AddApplication()
-                .AddInfrastructure(builder.Configuration)
-                .AddPersistence()
-                .AddPresentation();
+        builder.Services
+            .AddApplication()
+            .AddInfrastructure(builder.Configuration)
+            .AddPersistence()
+            .AddPresentation()
+            .AddSwaggerServices();
 
-            return builder;
+        return builder;
+    }
+
+    public static WebApplication UseApplication(this WebApplication app)
+    {
+        if (app.Environment.IsDevelopment())
+        {
+            app.UseSwagger();      
+            app.UseSwaggerUI();
         }
 
-        public static WebApplication UseApplication(this WebApplication app)
+        app.MapEndpoints();
+
+        return app;
+    }
+
+    private static WebApplication MapEndpoints(this WebApplication app)
+    {
+        using (var scope = app.Services.CreateScope())
         {
-            if (app.Environment.IsDevelopment())
-            {
-                app.MapOpenApi();
-            }
-
-            app.MapEndpoints();
-
-            return app;
-        }
-
-        private static WebApplication MapEndpoints(this WebApplication app)
-        {
-            var endpoints = app.Services.GetRequiredService<IEnumerable<IEndpoint>>();
+            var endpoints = scope.ServiceProvider.GetRequiredService<IEnumerable<IEndpoint>>();
             foreach (var endpoint in endpoints)
             {
                 endpoint.MapEndpoint(app);
             }
-            return app;
         }
+        return app;
     }
 }

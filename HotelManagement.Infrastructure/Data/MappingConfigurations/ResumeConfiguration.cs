@@ -75,3 +75,4 @@ public class ResumeConfiguration : IEntityTypeConfiguration<Resume>
             .HasForeignKey(x => x.ReviewedById)
             .OnDelete(DeleteBehavior.SetNull);
     }
+}

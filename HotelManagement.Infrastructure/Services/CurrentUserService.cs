@@ -1,4 +1,4 @@
-﻿using HotelManagement.Application.Common.Interfaces;
+﻿using HotelManagement.Application.Abstractions;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
 

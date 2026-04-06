@@ -4,9 +4,9 @@ namespace HotelManagement.Domain.DI
 {
     public static class DomainDependencies
     {
-        public static IServiceCollection AddDomain(this IServiceCollection servises)
+        public static IServiceCollection AddDomain(this IServiceCollection services)
         {
-            return servises;
+            return services;
         }
     }
 }

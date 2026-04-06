@@ -1,5 +1,7 @@
 ﻿using HotelManagement.API.Common;
+using HotelManagement.Application.Abstractions;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace HotelManagement.API.Features.Hotels.GetHotels
 {

@@ -4,9 +4,9 @@ namespace HotelManagement.Persistence.DI
 {
     public static class PersistenceDependencies
     {
-        public static IServiceCollection AddPersistence(this IServiceCollection servises)
+        public static IServiceCollection AddPersistence(this IServiceCollection services)
         {
-            return servises;
+            return services;
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using HotelManagement.API.Common;
+using HotelManagement.Application.Features.Hotels;
 using MediatR;
 
 namespace HotelManagement.API.Features.Hotels.CreateHotel

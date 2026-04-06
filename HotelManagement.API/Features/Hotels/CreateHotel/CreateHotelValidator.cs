@@ -1,4 +1,7 @@
-﻿namespace HotelManagement.API.Features.Hotels.CreateHotel
+﻿using FluentValidation;
+using HotelManagement.Application.Features.Hotels;
+
+namespace HotelManagement.API.Features.Hotels.CreateHotel
 {
     public class CreateHotelValidator : AbstractValidator<CreateHotelCommand>
     {

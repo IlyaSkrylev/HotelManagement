@@ -19,7 +19,7 @@ public class HotelTask : IEntity
 
     public virtual HotelTaskType TaskType { get; set; } = null!;
     public virtual HotelTaskStatus TaskStatus { get; set; } = null!;
-    public virtual TaskPriority Priority { get; set; } = null!;
+    public virtual HotelTaskPriority Priority { get; set; } = null!;
     public virtual Employee AssignedTo { get; set; } = null!;
     public virtual Employee CreatedBy { get; set; } = null!;
     public virtual HotelRoom? Room { get; set; }

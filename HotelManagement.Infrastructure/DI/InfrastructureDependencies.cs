@@ -1,4 +1,4 @@
-﻿using HotelManagement.Application.Common.Interfaces;
+﻿using HotelManagement.Application.Abstractions;
 using HotelManagement.Infrastructure.Data;
 using HotelManagement.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;

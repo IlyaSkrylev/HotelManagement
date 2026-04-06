@@ -7,7 +7,7 @@ namespace HotelManagement.API.DI
     {
         public static IServiceCollection AddPresentation(this IServiceCollection services)
         {
-            services.AddOpenApi();
+            services.AddEndpointsApiExplorer();
 
             var endpointTypes = Assembly.GetExecutingAssembly()
                 .GetTypes()
@@ -17,8 +17,6 @@ namespace HotelManagement.API.DI
             {
                 services.AddScoped(typeof(IEndpoint), type);
             }
-
-            services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
 
             return services;
         }
