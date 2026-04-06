@@ -22,7 +22,7 @@ public static class AppExtensions
 
     public static WebApplication UseApplication(this WebApplication app) 
     {
-        if (app.Environment.IsDevelopment())
+        if (app.Environment.IsDevelopment()) 
         {
             app.UseSwagger();      
             app.UseSwaggerUI();
