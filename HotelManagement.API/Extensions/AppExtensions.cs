@@ -18,7 +18,7 @@ public static class AppExtensions
             .AddSwaggerServices();
 
         return builder;
-    }
+    } 
 
     public static WebApplication UseApplication(this WebApplication app)
     {
