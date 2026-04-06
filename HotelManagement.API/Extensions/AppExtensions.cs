@@ -12,7 +12,7 @@ public static class AppExtensions
     {
         builder.Services
             .AddApplication()
-            .AddInfrastructure(builder.Configuration)
+            .AddInfrastructure(builder.Configuration) 
             .AddPersistence()
             .AddPresentation()
             .AddSwaggerServices();
