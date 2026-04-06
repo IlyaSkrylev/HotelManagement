@@ -23,6 +23,8 @@ namespace HotelManagement.Infrastructure.DI
                 provider.GetRequiredService<ApplicationDbContext>());
 
             services.AddScoped<ICurrentUserService, CurrentUserService>();
+            services.AddScoped<IPasswordHasher, PasswordHasher>();
+
             services.AddHttpContextAccessor();
             return services;
         }

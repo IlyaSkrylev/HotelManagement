@@ -3,71 +3,130 @@ import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
 function Register() {
-    const [email, setEmail] = useState('')
-    const [password, setPassword] = useState('')
-    const [repPassword, setRepPassword] = useState('')
+    const [formData, setFormData] = useState({
+        email: '',
+        password: '',
+        repPassword: '',
+        firstName: '',
+        lastName: '',
+        patronymic: '',
+        phone: ''
+    })
     const [error, setError] = useState('')
     const [loading, setLoading] = useState(false)
     const { register } = useAuth()
     const navigate = useNavigate()
 
+    const handleChange = (e) => {
+        setFormData({
+            ...formData,
+            [e.target.name]: e.target.value
+        })
+        setError('')
+    }
 
     const handleSubmit = async (e) => {
         e.preventDefault()
-        setError('')
+
+        if (formData.password !== formData.repPassword) {
+            setError('Пароли не совпадают!')
+            return
+        }
+
         setLoading(true)
+        setError('')
+
         try {
-            if (password !== repPassword) {
-                setError('Повторённый пароль не совпадает!')
-            } else {
-                await register()
-                navigate('/');
-            }
+            const { repPassword, ...registerData } = formData
+            await register(registerData)
+            navigate('/login')
         } catch (err) {
-            setError(err.response?.data?.message || 'Ошибка входа')
+            setError(err.response?.data?.status || 'Ошибка регистрации')
         } finally {
             setLoading(false)
         }
-    } 
+    }
 
     return (
         <div>
             <h1>Регистрация</h1>
-            <div>
-                <form onSubmit={handleSubmit}>
-                    <div>
-                        <label>Email</label>
-                        <input
-                            type = "email"
-                            value = { email }
-                            onChange={(e) => setEmail(e.target.value)}
-                            required
-                        />
-                    </div>
-                    <div>
-                        <label>Пароль</label>
-                        <input
-                            type="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
-                        />
-                    </div>
-                    <div>
-                        <label>Повторите пароль</label>
-                        <input
-                            type="password"
-                            value={repPassword}
-                            onChange={(e) => setRepPassword(e.target.value)}
-                            required
-                        />
-                    </div>
-                    {error && <div style={{ color: 'red' }}>{error}</div>}
-                    <button type="submit" disabled={loading}>
-                        {loading ? 'Вход...' : 'Войти'}
-                    </button>
-                </form>
-            </div>
+            <form onSubmit={handleSubmit}>
+                <div>
+                    <label>Email *</label>
+                    <input
+                        type="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleChange}
+                        required
+                    />
+                </div>
+                <div>
+                    <label>Имя *</label>
+                    <input
+                        type="text"
+                        name="firstName"
+                        value={formData.firstName}
+                        onChange={handleChange}
+                        required
+                    />
+                </div>
+                <div>
+                    <label>Фамилия *</label>
+                    <input
+                        type="text"
+                        name="lastName"
+                        value={formData.lastName}
+                        onChange={handleChange}
+                        required
+                    />
+                </div>
+                <div>
+                    <label>Отчество</label>
+                    <input
+                        type="text"
+                        name="patronymic"
+                        value={formData.patronymic}
+                        onChange={handleChange}
+                    />
+                </div>
+                <div>
+                    <label>Телефон</label>
+                    <input
+                        type="tel"
+                        name="phone"
+                        value={formData.phone}
+                        onChange={handleChange}
+                    />
+                </div>
+                <div>
+                    <label>Пароль *</label>
+                    <input
+                        type="password"
+                        name="password"
+                        value={formData.password}
+                        onChange={handleChange}
+                        required
+                    />
+                </div>
+                <div>
+                    <label>Повторите пароль *</label>
+                    <input
+                        type="password"
+                        name="repPassword"
+                        value={formData.repPassword}
+                        onChange={handleChange}
+                        required
+                    />
+                </div>
+                {error && <div style={{ color: 'red' }}>{error}</div>}
+                <button type="submit" disabled={loading}>
+                    {loading ? 'Регистрация...' : 'Зарегистрироваться'}
+                </button>
+            </form>
+            <p>
+                Уже есть аккаунт? <Link to="/login">Войти</Link>
+            </p>
         </div>
     )
 }
