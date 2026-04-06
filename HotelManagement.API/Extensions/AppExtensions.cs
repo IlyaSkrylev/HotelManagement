@@ -20,7 +20,7 @@ public static class AppExtensions
         return builder;
     } 
 
-    public static WebApplication UseApplication(this WebApplication app)
+    public static WebApplication UseApplication(this WebApplication app) 
     {
         if (app.Environment.IsDevelopment())
         {
