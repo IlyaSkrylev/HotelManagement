@@ -1,9 +1,10 @@
-﻿using HotelManagement.API.Common;
+﻿using HotelManagement.Application.Common;
 using HotelManagement.Application.Abstractions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
-namespace HotelManagement.API.Features.Hotels.GetHotels
+namespace HotelManagement.Application.Features.Hotels
 {
     public record GetHotelsQuery(int Page = 1, int PageSize = 10) : IRequest<PaginatedResult<HotelDto>>;
 

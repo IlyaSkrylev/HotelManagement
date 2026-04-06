@@ -1,4 +1,4 @@
-﻿namespace HotelManagement.API.Common
+﻿namespace HotelManagement.Application.Common
 {
     public class PaginatedResult<T>
     {
