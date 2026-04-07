@@ -14,7 +14,7 @@ function Register() {
     })
     const [error, setError] = useState('')
     const [loading, setLoading] = useState(false)
-    const { register } = useAuth()
+    const { register, loginAfterRegister } = useAuth()  // ← добавить функцию
     const navigate = useNavigate()
 
     const handleChange = (e) => {
@@ -38,10 +38,19 @@ function Register() {
 
         try {
             const { repPassword, ...registerData } = formData
-            await register(registerData)
-            navigate('/login')
+            const result = await register(registerData)
+
+            const { accessToken, refreshToken, ...userData } = result.data
+
+            localStorage.setItem('accessToken', accessToken)
+            localStorage.setItem('refreshToken', refreshToken)
+
+            // Обновляем состояние пользователя
+            loginAfterRegister(userData)  // ← вызываем функцию из контекста
+
+            navigate('/')
         } catch (err) {
-            setError(err.response?.data?.status || 'Ошибка регистрации')
+            setError(err.response?.data?.message || 'Ошибка регистрации')
         } finally {
             setLoading(false)
         }
@@ -51,6 +60,7 @@ function Register() {
         <div>
             <h1>Регистрация</h1>
             <form onSubmit={handleSubmit}>
+                {/* ... остальные поля ... */}
                 <div>
                     <label>Email *</label>
                     <input

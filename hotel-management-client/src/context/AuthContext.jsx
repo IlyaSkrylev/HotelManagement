@@ -17,17 +17,31 @@ export const AuthProvider = ({ children }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(false)
 
     useEffect(() => {
-        const token = localStorage.getItem('token')
-        if (token) {
-            // Проверка токена и получение данных пользователя
+        const accessToken = localStorage.getItem('accessToken')
+        const refreshToken = localStorage.getItem('refreshToken')
+
+        if (accessToken && refreshToken) {
+            // Проверяем валидность access токена
             authApi.getProfile()
                 .then(response => {
-                    setUser(response.data)
+                    setUser(response.data.data)
                     setIsAuthenticated(true)
                 })
-                .catch(() => {
-                    localStorage.removeItem('token')
-                    setIsAuthenticated(false)
+                .catch(async () => {
+                    // Если access токен истёк, пробуем обновить
+                    try {
+                        const newTokens = await authApi.refreshToken(refreshToken)
+                        localStorage.setItem('accessToken', newTokens.data.data.accessToken)
+                        localStorage.setItem('refreshToken', newTokens.data.data.refreshToken)
+
+                        const profile = await authApi.getProfile()
+                        setUser(profile.data.data)
+                        setIsAuthenticated(true)
+                    } catch (error) {
+                        localStorage.removeItem('accessToken')
+                        localStorage.removeItem('refreshToken')
+                        setIsAuthenticated(false)
+                    }
                 })
                 .finally(() => setLoading(false))
         } else {
@@ -37,8 +51,9 @@ export const AuthProvider = ({ children }) => {
 
     const login = async (email, password) => {
         const response = await authApi.login(email, password)
-        const { token, user: userData } = response.data
-        localStorage.setItem('token', token)
+        const { accessToken, refreshToken, ...userData } = response.data.data
+        localStorage.setItem('accessToken', accessToken)
+        localStorage.setItem('refreshToken', refreshToken)
         setUser(userData)
         setIsAuthenticated(true)
         return response.data
@@ -46,18 +61,24 @@ export const AuthProvider = ({ children }) => {
 
     const register = async (userData) => {
         const response = await authApi.register(userData)
-        return response.data
+        return response.data 
+    }
+
+    const loginAfterRegister = (userData) => {
+        setUser(userData)
+        setIsAuthenticated(true)
     }
 
     const logout = () => {
-        localStorage.removeItem('token')
+        localStorage.removeItem('accessToken')
+        localStorage.removeItem('refreshToken')
         setUser(null)
         setIsAuthenticated(false)
     }
 
     const updateProfile = async (data) => {
         const response = await authApi.updateProfile(data)
-        setUser(response.data)
+        setUser(response.data.data)
         return response.data
     }
 
@@ -67,6 +88,7 @@ export const AuthProvider = ({ children }) => {
         isAuthenticated,
         login,
         register,
+        loginAfterRegister,
         logout,
         updateProfile
     }

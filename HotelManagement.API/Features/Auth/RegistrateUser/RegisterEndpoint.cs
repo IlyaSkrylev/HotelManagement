@@ -1,5 +1,4 @@
-﻿// HotelManagement.API/Features/Auth/RegisterEndpoint.cs
-using HotelManagement.API.Common;
+﻿using HotelManagement.API.Common;
 using HotelManagement.Application.Features.Auth;
 using MediatR;
 
@@ -13,11 +12,21 @@ public class RegisterEndpoint : IEndpoint
                 RegisterCommand command,
                 IMediator mediator,
                 ILogger<RegisterEndpoint> logger) =>
-                {
-                    logger.LogInformation("POST /api/auth/register вызван");
-                    var result = await mediator.Send(command);
-                    return Results.Ok(BaseResponse.Ok(result, "Регистрация прошла успешно"));
-                })
+        {
+            logger.LogInformation("POST /api/auth/register вызван");
+            var result = await mediator.Send(command);
+
+            // Возвращаем токены после регистрации
+            return Results.Ok(BaseResponse.Ok(new
+            {
+                result.Id,
+                result.Email,
+                result.FirstName,
+                result.LastName,
+                AccessToken = result.AccessToken,
+                RefreshToken = result.RefreshToken
+            }, "Регистрация прошла успешно"));
+        })
             .WithName("Register")
             .WithDescription("Регистрация нового пользователя")
             .Accepts<RegisterCommand>("application/json")

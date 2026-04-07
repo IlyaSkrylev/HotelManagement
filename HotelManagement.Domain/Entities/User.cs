@@ -17,7 +17,11 @@ public class User : IEntity
     public DateTimeOffset UpdatedAt { get; set; }
     public DateTimeOffset? LastLogin { get; set; }
 
+    // Refresh Token поля
+    public string? RefreshToken { get; set; }
+    public DateTime? RefreshTokenExpiryTime { get; set; }
 
+    // Навигационные свойства
     public ICollection<UserHotelRole> UserHotelRoles { get; set; } = new List<UserHotelRole>();
     public ICollection<Employee> Employees { get; set; } = new List<Employee>();
     public ICollection<Resume> Resumes { get; set; } = new List<Resume>();

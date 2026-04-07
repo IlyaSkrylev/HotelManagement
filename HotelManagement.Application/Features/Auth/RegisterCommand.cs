@@ -1,5 +1,4 @@
-﻿// HotelManagement.Application/Features/Auth/RegisterCommand.cs
-using HotelManagement.Application.Abstractions;
+﻿using HotelManagement.Application.Abstractions;
 using HotelManagement.Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -16,22 +15,32 @@ public record RegisterCommand(
     string? Phone = null
 ) : IRequest<RegisterResponse>;
 
-public record RegisterResponse(long Id, string Email, string FirstName, string LastName);
+public record RegisterResponse(
+    long Id,
+    string Email,
+    string FirstName,
+    string LastName,
+    string AccessToken,
+    string RefreshToken
+);
 
 public class RegisterCommandHandler : IRequestHandler<RegisterCommand, RegisterResponse>
 {
     private readonly IApplicationDbContext _context;
     private readonly ILogger<RegisterCommandHandler> _logger;
     private readonly IPasswordHasher _passwordHasher;
+    private readonly IJwtTokenGenerator _jwtTokenGenerator;
 
     public RegisterCommandHandler(
         IApplicationDbContext context,
         ILogger<RegisterCommandHandler> logger,
-        IPasswordHasher passwordHasher)
+        IPasswordHasher passwordHasher,
+        IJwtTokenGenerator jwtTokenGenerator)
     {
         _context = context;
         _logger = logger;
         _passwordHasher = passwordHasher;
+        _jwtTokenGenerator = jwtTokenGenerator;
     }
 
     public async Task<RegisterResponse> Handle(RegisterCommand request, CancellationToken cancellationToken)
@@ -65,8 +74,24 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, RegisterR
         _context.Users.Add(user);
         await _context.SaveChangesAsync(cancellationToken);
 
+        // Генерация токенов
+        var accessToken = _jwtTokenGenerator.GenerateAccessToken(user.Id, user.Email, user.FirstName, user.LastName);
+        var refreshToken = _jwtTokenGenerator.GenerateRefreshToken();
+
+        // Сохранение Refresh Token в БД
+        user.RefreshToken = refreshToken;
+        user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
+        await _context.SaveChangesAsync(cancellationToken);
+
         _logger.LogInformation("Пользователь зарегистрирован с ID: {UserId}", user.Id);
 
-        return new RegisterResponse(user.Id, user.Email, user.FirstName, user.LastName);
+        return new RegisterResponse(
+            user.Id,
+            user.Email,
+            user.FirstName,
+            user.LastName,
+            accessToken,
+            refreshToken
+        );
     }
 }

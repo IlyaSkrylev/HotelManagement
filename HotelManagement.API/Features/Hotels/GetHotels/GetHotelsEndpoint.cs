@@ -21,8 +21,8 @@ namespace HotelManagement.API.Features.Hotels.GetHotels
                 .WithName("GetHotels")
                 .WithDescription("Возвращает список всех гостиниц с пагинацией")
                 .Produces<PaginatedResult<HotelDto>>(StatusCodes.Status200OK)
-                .Produces(StatusCodes.Status401Unauthorized);
-                //.RequireAuthorization();
+                .Produces(StatusCodes.Status401Unauthorized)
+                .RequireAuthorization();
         }
     }
 }

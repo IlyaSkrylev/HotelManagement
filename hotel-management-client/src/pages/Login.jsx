@@ -14,6 +14,7 @@ function Login() {
         e.preventDefault()
         setError('')
         setLoading(true)
+
         try {
             await login(email, password)
             navigate('/')
@@ -27,7 +28,6 @@ function Login() {
     return (
         <div>
             <h1>Вход в систему</h1>
-            {error && <div style={{ color: 'red' }}>{error}</div>}
             <form onSubmit={handleSubmit}>
                 <div>
                     <label>Email</label>
@@ -47,6 +47,7 @@ function Login() {
                         required
                     />
                 </div>
+                {error && <div style={{ color: 'red' }}>{error}</div>}
                 <button type="submit" disabled={loading}>
                     {loading ? 'Вход...' : 'Войти'}
                 </button>
