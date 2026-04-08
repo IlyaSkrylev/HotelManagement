@@ -15,14 +15,27 @@ export const ProjectProvider = ({ children }) => {
     const [hotels, setHotels] = useState([])
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState(null)
+    const [pagination, setPagination] = useState({
+        currentPage: 1,
+        pageSize: 6,
+        totalCount: 0,
+        totalPages: 0
+    })
 
-    const loadHotels = useCallback(async () => {
+    const loadHotels = useCallback(async (page = 1, pageSize = 6) => {
         setLoading(true)
         setError(null)
         try {
-            const response = await hotelApi.getAll()
-            setHotels(response.data.data?.items || response.data.data || [])
+            const response = await hotelApi.getAll(page, pageSize)
+            setHotels(response.data?.items || [])
+            setPagination({
+                currentPage: response.data.page,
+                pageSize: response.data.pageSize,
+                totalCount: response.data.totalCount,
+                totalPages: response.data.totalPages
+            })
         } catch (err) {
+            console.error('Load hotels error:', err)
             setError(err.response?.data?.message || 'Ошибка загрузки отелей')
         } finally {
             setLoading(false)
@@ -31,9 +44,10 @@ export const ProjectProvider = ({ children }) => {
 
     const createHotel = async (hotelData) => {
         setLoading(true)
+        setError(null)
         try {
             const response = await hotelApi.create(hotelData)
-            await loadHotels()
+            await loadHotels(1, pagination.pageSize)  // возвращаемся на первую страницу
             return response.data
         } catch (err) {
             setError(err.response?.data?.message || 'Ошибка создания отеля')
@@ -45,9 +59,10 @@ export const ProjectProvider = ({ children }) => {
 
     const updateHotel = async (id, hotelData) => {
         setLoading(true)
+        setError(null)
         try {
             const response = await hotelApi.update(id, hotelData)
-            await loadHotels()
+            await loadHotels(pagination.currentPage, pagination.pageSize)
             return response.data
         } catch (err) {
             setError(err.response?.data?.message || 'Ошибка обновления отеля')
@@ -59,9 +74,14 @@ export const ProjectProvider = ({ children }) => {
 
     const deleteHotel = async (id) => {
         setLoading(true)
+        setError(null)
         try {
             await hotelApi.delete(id)
-            await loadHotels()
+            if (hotels.length === 1 && pagination.currentPage > 1) {
+                await loadHotels(pagination.currentPage - 1, pagination.pageSize)
+            } else {
+                await loadHotels(pagination.currentPage, pagination.pageSize)
+            }
         } catch (err) {
             setError(err.response?.data?.message || 'Ошибка удаления отеля')
             throw err
@@ -74,6 +94,7 @@ export const ProjectProvider = ({ children }) => {
         hotels,
         loading,
         error,
+        pagination,
         loadHotels,
         createHotel,
         updateHotel,

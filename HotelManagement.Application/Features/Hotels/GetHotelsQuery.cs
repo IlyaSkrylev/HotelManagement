@@ -3,20 +3,11 @@ using HotelManagement.Application.Abstractions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using HotelManagement.Application.DTOs;
 
 namespace HotelManagement.Application.Features.Hotels
 {
     public record GetHotelsQuery(int Page = 1, int PageSize = 10) : IRequest<PaginatedResult<HotelDto>>;
-
-    public class HotelDto
-    {
-        public long Id { get; set; }
-        public string Name { get; set; } = string.Empty;
-        public string Address { get; set; } = string.Empty;
-        public string Phone { get; set; } = string.Empty;
-        public string Email { get; set; } = string.Empty;
-        public string Description { get; set; } = string.Empty;
-    }
 
     public class GetHotelsQueryHandler : IRequestHandler<GetHotelsQuery, PaginatedResult<HotelDto>>
     {
@@ -46,7 +37,9 @@ namespace HotelManagement.Application.Features.Hotels
                     Name = h.Name,
                     Address = h.Address,
                     Phone = h.Phone,
-                    Email = h.Email
+                    Email = h.Email,
+                    Description = h.Description,
+                    ImageUrl = h.ImageUrl
                 })
                 .ToListAsync(cancellationToken);
 

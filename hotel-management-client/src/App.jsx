@@ -1,5 +1,5 @@
 import React from 'react'
-import { BrowserRouter as Router } from 'react-router-dom'
+// import { BrowserRouter as Router } from 'react-router-dom'   // ← УДАЛИТЬ
 import { AuthProvider } from './context/AuthContext'
 import { ProjectProvider } from './context/ProjectContext'
 import Navigation from './components/Navigation'
@@ -16,15 +16,13 @@ function App() {
     return (
         <AuthProvider>
             <ProjectProvider>
-                <Router>
-                    <TokenMonitor />
-                    <div className="app">
-                        <Navigation />
-                        <main>
-                            <AppRoutes />
-                        </main>
-                    </div>
-                </Router>
+                <TokenMonitor />
+                <div className="app">
+                    <Navigation />
+                    <main>
+                        <AppRoutes />
+                    </main>
+                </div>
             </ProjectProvider>
         </AuthProvider>
     )

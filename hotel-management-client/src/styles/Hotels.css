@@ -1,0 +1,77 @@
+.hotels-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.hotels-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+    .hotels-header h1 {
+        margin: 0;
+        color: var(--text-primary);
+    }
+
+.create-button {
+    background-color: var(--button-success);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: background-color 0.2s;
+}
+
+    .create-button:hover {
+        background-color: var(--button-success-hover);
+        text-decoration: none;
+        color: white;
+    }
+
+/* Сетка карточек — 3 в ряд */
+.hotels-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+}
+
+/* Адаптация под разные экраны */
+@media (max-width: 1100px) {
+    .hotels-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 700px) {
+    .hotels-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.loading, .error {
+    text-align: center;
+    padding: 50px;
+    font-size: 1.2rem;
+}
+
+.error {
+    color: #dc3545;
+}
+
+.no-hotels {
+    text-align: center;
+    padding: 50px;
+    background: var(--bg-secondary);
+    border-radius: 16px;
+}
+
+    .no-hotels p {
+        margin-bottom: 20px;
+        color: var(--text-secondary);
+    }

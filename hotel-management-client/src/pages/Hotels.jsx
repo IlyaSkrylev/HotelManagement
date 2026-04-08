@@ -1,61 +1,60 @@
 import React, { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useProject } from '../context/ProjectContext'
+import { useAuth } from '../context/AuthContext'
+import HotelCard from '../components/HotelCard'
+import Pagination from '../components/Pagination'
+import '../styles/Hotels.css'
 
 function Hotels() {
-    const { hotels, loading, error, loadHotels, deleteHotel } = useProject()
+    const { hotels, loading, error, pagination, loadHotels } = useProject()
+    const { isAuthenticated } = useAuth()
 
     useEffect(() => {
-        loadHotels()
+        loadHotels(1, 6)
     }, [])
 
-    const handleDelete = async (id) => {
-        if (window.confirm('Удалить гостиницу?')) {
-            try {
-                await deleteHotel(id)
-            } catch (err) {
-                alert('Ошибка удаления')
-            }
-        }
+    const handlePageChange = (page) => {
+        loadHotels(page, pagination.pageSize)
+        window.scrollTo({ top: 0, behavior: 'smooth' })
     }
 
-    if (loading) return <div>Загрузка...</div>
-    if (error) return <div style={{ color: 'red' }}>{error}</div>
+    if (loading) return <div className="loading">Загрузка...</div>
+    if (error) return <div className="error">{error}</div>
 
     return (
-        <div>
-            <h1>Гостиницы</h1>
-            <Link to="/hotels/create">
-                <button>Создать гостиницу</button>
-            </Link>
-            <table border="1" cellPadding="8">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Название</th>
-                        <th>Адрес</th>
-                        <th>Телефон</th>
-                        <th>Email</th>
-                        <th>Действия</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {hotels.map((hotel) => (
-                        <tr key={hotel.id}>
-                            <td>{hotel.id}</td>
-                            <td>{hotel.name}</td>
-                            <td>{hotel.address}</td>
-                            <td>{hotel.phone}</td>
-                            <td>{hotel.email}</td>
-                            <td>
-                                <Link to={`/hotels/edit/${hotel.id}`}>Редактировать</Link>
-                                {' | '}
-                                <button onClick={() => handleDelete(hotel.id)}>Удалить</button>
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
+        <div className="hotels-container">
+            <div className="hotels-header">
+                <h1>Гостиницы</h1>
+                {isAuthenticated && (
+                    <Link to="/hotels/create" className="create-button">
+                        + Создать гостиницу
+                    </Link>
+                )}
+            </div>
+
+            <div className="hotels-grid">
+                {hotels.map((hotel) => (
+                    <HotelCard key={hotel.id} hotel={hotel} />
+                ))}
+            </div>
+
+            {hotels.length === 0 && (
+                <div className="no-hotels">
+                    <p>Нет добавленных гостиниц</p>
+                    {isAuthenticated && (
+                        <Link to="/hotels/create" className="create-button">
+                            Создать первую гостиницу
+                        </Link>
+                    )}
+                </div>
+            )}
+
+            <Pagination
+                currentPage={pagination.currentPage}
+                totalPages={pagination.totalPages}
+                onPageChange={handlePageChange}
+            />
         </div>
     )
 }

@@ -31,6 +31,7 @@ namespace HotelManagement.Infrastructure.DI
             services.AddScoped<ICurrentUserService, CurrentUserService>();
             services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
             services.AddScoped<IPasswordHasher, PasswordHasher>();
+            services.AddScoped<IFileStorageService, FileStorageService>();
 
             services.AddAuthentication(options =>
             {

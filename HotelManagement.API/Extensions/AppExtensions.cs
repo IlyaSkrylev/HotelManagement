@@ -15,7 +15,20 @@ public static class AppExtensions
             .AddInfrastructure(builder.Configuration) 
             .AddPersistence()
             .AddPresentation()
-            .AddSwaggerServices();
+            .AddSwaggerServices()
+            .AddCors(options =>
+            {
+                options.AddPolicy("AllowAll", policy =>
+                {
+                    policy.WithOrigins(
+                            "http://localhost:5173",
+                            "http://192.168.0.143:5173"
+                        )
+                        .AllowAnyMethod()
+                        .AllowAnyHeader()
+                        .AllowCredentials();
+                });
+            });
 
         return builder;
     } 
@@ -27,6 +40,8 @@ public static class AppExtensions
             app.UseSwagger();      
             app.UseSwaggerUI();
         }
+
+        app.UseCors("AllowAll");
 
         app.MapEndpoints();
 

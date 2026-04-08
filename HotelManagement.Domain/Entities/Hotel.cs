@@ -10,6 +10,7 @@ public class Hotel : IEntity
     public string? Phone { get; set; }
     public string? Email { get; set; }
     public string? Description { get; set; }
+    public string? ImageUrl { get; set; }
     public long CreatedById { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset UpdatedAt { get; set; }

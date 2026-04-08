@@ -22,7 +22,7 @@ public class HotelConfiguration : IEntityTypeConfiguration<Hotel>
 
         builder.Property(x => x.Address)
             .HasColumnName("address")
-            .HasMaxLength(10000);
+            .HasMaxLength(500);
 
         builder.Property(x => x.Phone)
             .HasColumnName("phone")
@@ -35,6 +35,10 @@ public class HotelConfiguration : IEntityTypeConfiguration<Hotel>
         builder.Property(x => x.Description)
             .HasColumnName("description")
             .HasMaxLength(10000);
+
+        builder.Property(x => x.ImageUrl)
+            .HasColumnName("image_url")
+            .HasMaxLength(500);
 
         builder.Property(x => x.CreatedById)
             .HasColumnName("created_by_id")
