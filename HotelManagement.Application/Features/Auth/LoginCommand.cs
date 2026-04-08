@@ -64,7 +64,7 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, LoginResponse>
 
         // Сохранение Refresh Token в БД
         user.RefreshToken = refreshToken;
-        user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
+        user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(_jwtTokenGenerator.GetRefreshTokenExpiryDays());
 
         await _context.SaveChangesAsync(cancellationToken);
 

@@ -39,7 +39,7 @@ public class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenCommand, R
         var newRefreshToken = _jwtTokenGenerator.GenerateRefreshToken();
 
         user.RefreshToken = newRefreshToken;
-        user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
+        user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(_jwtTokenGenerator.GetRefreshTokenExpiryDays());
         await _context.SaveChangesAsync(cancellationToken);
 
         return new RefreshTokenResponse(newAccessToken, newRefreshToken);

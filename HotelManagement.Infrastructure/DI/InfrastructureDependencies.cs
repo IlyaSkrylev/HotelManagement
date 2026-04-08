@@ -1,4 +1,5 @@
 ﻿using HotelManagement.Application.Abstractions;
+using HotelManagement.Application.Settings;
 using HotelManagement.Infrastructure.Data;
 using HotelManagement.Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -21,6 +22,8 @@ namespace HotelManagement.Infrastructure.DI
                 {
                     npgsqlOptions.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName);
                 }));
+
+            services.Configure<JwtSettings>(configuration.GetSection(JwtSettings.SectionName));
 
             services.AddScoped<IApplicationDbContext>(provider =>
                 provider.GetRequiredService<ApplicationDbContext>());

@@ -17,36 +17,52 @@ export const AuthProvider = ({ children }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(false)
 
     useEffect(() => {
-        const accessToken = localStorage.getItem('accessToken')
-        const refreshToken = localStorage.getItem('refreshToken')
+        const loadUser = async () => {
+            const accessToken = localStorage.getItem('accessToken')
+            const refreshToken = localStorage.getItem('refreshToken')
 
-        if (accessToken && refreshToken) {
-            // Проверяем валидность access токена
-            authApi.getProfile()
-                .then(response => {
-                    setUser(response.data.data)
+            if (!accessToken || !refreshToken) {
+                setLoading(false)
+                return
+            }
+
+            try {
+                // Пытаемся получить профиль
+                const response = await authApi.getProfile()
+                console.log('Profile response:', response.data)
+
+                // Данные пользователя лежат в response.data.data
+                const userData = response.data.data
+                setUser(userData)
+                setIsAuthenticated(true)
+            } catch (error) {
+                console.error('Error loading profile:', error.response?.data)
+
+                // Если access токен истёк, пробуем обновить
+                try {
+                    const refreshToken = localStorage.getItem('refreshToken')
+                    const refreshResponse = await authApi.refreshToken(refreshToken)
+
+                    const { accessToken: newAccessToken, refreshToken: newRefreshToken } = refreshResponse.data.data
+                    localStorage.setItem('accessToken', newAccessToken)
+                    localStorage.setItem('refreshToken', newRefreshToken)
+
+                    // Повторно получаем профиль
+                    const profileResponse = await authApi.getProfile()
+                    setUser(profileResponse.data.data)
                     setIsAuthenticated(true)
-                })
-                .catch(async () => {
-                    // Если access токен истёк, пробуем обновить
-                    try {
-                        const newTokens = await authApi.refreshToken(refreshToken)
-                        localStorage.setItem('accessToken', newTokens.data.data.accessToken)
-                        localStorage.setItem('refreshToken', newTokens.data.data.refreshToken)
-
-                        const profile = await authApi.getProfile()
-                        setUser(profile.data.data)
-                        setIsAuthenticated(true)
-                    } catch (error) {
-                        localStorage.removeItem('accessToken')
-                        localStorage.removeItem('refreshToken')
-                        setIsAuthenticated(false)
-                    }
-                })
-                .finally(() => setLoading(false))
-        } else {
-            setLoading(false)
+                } catch (refreshError) {
+                    console.error('Refresh failed:', refreshError)
+                    localStorage.removeItem('accessToken')
+                    localStorage.removeItem('refreshToken')
+                    setIsAuthenticated(false)
+                }
+            } finally {
+                setLoading(false)
+            }
         }
+
+        loadUser()
     }, [])
 
     const login = async (email, password) => {
@@ -61,12 +77,7 @@ export const AuthProvider = ({ children }) => {
 
     const register = async (userData) => {
         const response = await authApi.register(userData)
-        return response.data 
-    }
-
-    const loginAfterRegister = (userData) => {
-        setUser(userData)
-        setIsAuthenticated(true)
+        return response.data
     }
 
     const logout = () => {
@@ -82,15 +93,25 @@ export const AuthProvider = ({ children }) => {
         return response.data
     }
 
+    const refreshToken = async (refreshTokenStr) => {
+        const response = await authApi.refreshToken(refreshTokenStr)
+        const { accessToken, refreshToken: newRefreshToken } = response.data.data
+
+        localStorage.setItem('accessToken', accessToken)
+        localStorage.setItem('refreshToken', newRefreshToken)
+
+        return { accessToken, refreshToken: newRefreshToken }
+    }
+
     const value = {
         user,
         loading,
         isAuthenticated,
         login,
         register,
-        loginAfterRegister,
         logout,
-        updateProfile
+        updateProfile,
+        refreshToken
     }
 
     return (
