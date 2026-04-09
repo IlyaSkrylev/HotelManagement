@@ -16,7 +16,6 @@ public class RegisterEndpoint : IEndpoint
             logger.LogInformation("POST /api/auth/register вызван");
             var result = await mediator.Send(command);
 
-            // Возвращаем токены после регистрации
             return Results.Ok(BaseResponse.Ok(new
             {
                 result.Id,

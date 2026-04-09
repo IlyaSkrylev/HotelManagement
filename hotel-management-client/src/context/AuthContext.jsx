@@ -27,18 +27,15 @@ export const AuthProvider = ({ children }) => {
             }
 
             try {
-                // Пытаемся получить профиль
                 const response = await authApi.getProfile()
                 console.log('Profile response:', response.data)
 
-                // Данные пользователя лежат в response.data.data
                 const userData = response.data.data
                 setUser(userData)
                 setIsAuthenticated(true)
             } catch (error) {
                 console.error('Error loading profile:', error.response?.data)
 
-                // Если access токен истёк, пробуем обновить
                 try {
                     const refreshToken = localStorage.getItem('refreshToken')
                     const refreshResponse = await authApi.refreshToken(refreshToken)
@@ -47,7 +44,6 @@ export const AuthProvider = ({ children }) => {
                     localStorage.setItem('accessToken', newAccessToken)
                     localStorage.setItem('refreshToken', newRefreshToken)
 
-                    // Повторно получаем профиль
                     const profileResponse = await authApi.getProfile()
                     setUser(profileResponse.data.data)
                     setIsAuthenticated(true)

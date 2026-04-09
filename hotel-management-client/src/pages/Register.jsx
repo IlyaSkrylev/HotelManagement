@@ -14,7 +14,7 @@ function Register() {
     })
     const [error, setError] = useState('')
     const [loading, setLoading] = useState(false)
-    const { register, loginAfterRegister } = useAuth()  // ← добавить функцию
+    const { register, loginAfterRegister } = useAuth() 
     const navigate = useNavigate()
 
     const handleChange = (e) => {
@@ -45,8 +45,7 @@ function Register() {
             localStorage.setItem('accessToken', accessToken)
             localStorage.setItem('refreshToken', refreshToken)
 
-            // Обновляем состояние пользователя
-            loginAfterRegister(userData)  // ← вызываем функцию из контекста
+            loginAfterRegister(userData)  
 
             navigate('/')
         } catch (err) {
@@ -60,7 +59,6 @@ function Register() {
         <div>
             <h1>Регистрация</h1>
             <form onSubmit={handleSubmit}>
-                {/* ... остальные поля ... */}
                 <div>
                     <label>Email *</label>
                     <input

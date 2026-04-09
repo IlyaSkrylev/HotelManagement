@@ -1,8 +1,10 @@
 ﻿using HotelManagement.API.Common;
 using HotelManagement.API.DI;
 using HotelManagement.Application.DI;
+using HotelManagement.Application.Settings;
 using HotelManagement.Infrastructure.DI;
 using HotelManagement.Persistence.DI;
+using Microsoft.Extensions.FileProviders;
 
 namespace HotelManagement.API.Extensions;
 
@@ -10,38 +12,65 @@ public static class AppExtensions
 {
     public static WebApplicationBuilder AddApplication(this WebApplicationBuilder builder)
     {
+        var serverSettings = builder.Configuration.GetSection(ServerSettings.SectionName).Get<ServerSettings>();
+
+        builder.WebHost.UseUrls($"http://{serverSettings?.Host ?? "0.0.0.0"}:{serverSettings?.Port ?? 5030}");
+
         builder.Services
+            .AddAuthorization()
             .AddApplication()
-            .AddInfrastructure(builder.Configuration) 
+            .AddInfrastructure(builder.Configuration)
             .AddPersistence()
             .AddPresentation()
-            .AddSwaggerServices()
-            .AddCors(options =>
+            .AddSwaggerServices();
+
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy("AllowSpecific", policy =>
             {
-                options.AddPolicy("AllowAll", policy =>
+                if (serverSettings?.AllowedOrigins != null && serverSettings.AllowedOrigins.Any())
                 {
-                    policy.WithOrigins(
-                            "http://localhost:5173",
-                            "http://192.168.0.143:5173"
-                        )
-                        .AllowAnyMethod()
-                        .AllowAnyHeader()
-                        .AllowCredentials();
-                });
+                    policy.WithOrigins(serverSettings.AllowedOrigins.ToArray())
+                          .AllowAnyMethod()
+                          .AllowAnyHeader()
+                          .AllowCredentials();
+                }
+                else
+                {
+                    policy.AllowAnyOrigin()
+                          .AllowAnyMethod()
+                          .AllowAnyHeader();
+                }
             });
+        });
 
         return builder;
-    } 
+    }
 
-    public static WebApplication UseApplication(this WebApplication app) 
+    public static WebApplication UseApplication(this WebApplication app)
     {
-        if (app.Environment.IsDevelopment()) 
+        var serverSettings = app.Configuration.GetSection(ServerSettings.SectionName).Get<ServerSettings>();
+
+        var uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "uploads");
+        if (!Directory.Exists(uploadsPath))
+            Directory.CreateDirectory(uploadsPath);
+
+        app.UseStaticFiles(new StaticFileOptions
         {
-            app.UseSwagger();      
+            FileProvider = new PhysicalFileProvider(uploadsPath),
+            RequestPath = "/uploads"
+        });
+
+        app.UseCors("AllowSpecific");
+
+        app.UseAuthentication();
+        app.UseAuthorization();
+
+        if (app.Environment.IsDevelopment())
+        {
+            app.UseSwagger();
             app.UseSwaggerUI();
         }
-
-        app.UseCors("AllowAll");
 
         app.MapEndpoints();
 

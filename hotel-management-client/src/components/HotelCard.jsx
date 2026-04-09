@@ -1,6 +1,7 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { getImageUrl } from '../config'
 import '../styles/HotelCard.css'
 
 const LocationIcon = () => <span className="icon">📍</span>
@@ -20,7 +21,7 @@ function HotelCard({ hotel, onDelete }) {
         <div className="hotel-card">
             <div className="hotel-card__image">
                 {hotel.imageUrl ? (
-                    <img src={`http://localhost:5030${hotel.imageUrl}`} alt={hotel.name} />
+                    <img src={getImageUrl(hotel.imageUrl)} alt={hotel.name} />
                 ) : (
                     <div className="hotel-card__image-placeholder">
                         🏨

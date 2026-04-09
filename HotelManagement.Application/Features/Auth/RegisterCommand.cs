@@ -47,7 +47,6 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, RegisterR
     {
         _logger.LogInformation("Регистрация нового пользователя: {Email}", request.Email);
 
-        // Проверка, существует ли пользователь с таким email
         var existingUser = await _context.Users
             .FirstOrDefaultAsync(u => u.Email == request.Email, cancellationToken);
 
@@ -56,7 +55,6 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, RegisterR
             throw new InvalidOperationException("Пользователь с таким email уже существует");
         }
 
-        // Хеширование пароля
         var passwordHash = _passwordHasher.Hash(request.Password);
 
         var user = new User
@@ -74,11 +72,9 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, RegisterR
         _context.Users.Add(user);
         await _context.SaveChangesAsync(cancellationToken);
 
-        // Генерация токенов
         var accessToken = _jwtTokenGenerator.GenerateAccessToken(user.Id, user.Email, user.FirstName, user.LastName);
         var refreshToken = _jwtTokenGenerator.GenerateRefreshToken();
 
-        // Сохранение Refresh Token в БД
         user.RefreshToken = refreshToken;
         user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
         await _context.SaveChangesAsync(cancellationToken);

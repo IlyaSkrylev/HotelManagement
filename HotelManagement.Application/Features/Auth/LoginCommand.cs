@@ -55,14 +55,11 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, LoginResponse>
             throw new UnauthorizedAccessException("Неверный email или пароль");
         }
 
-        // Обновление времени последнего входа
         user.LastLogin = DateTimeOffset.UtcNow;
 
-        // Генерация токенов
         var accessToken = _jwtTokenGenerator.GenerateAccessToken(user.Id, user.Email, user.FirstName, user.LastName);
         var refreshToken = _jwtTokenGenerator.GenerateRefreshToken();
 
-        // Сохранение Refresh Token в БД
         user.RefreshToken = refreshToken;
         user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(_jwtTokenGenerator.GetRefreshTokenExpiryDays());
 

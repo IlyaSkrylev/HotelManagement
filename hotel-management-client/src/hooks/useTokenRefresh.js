@@ -20,7 +20,7 @@ const useTokenRefresh = () => {
         const decoded = decodeToken(token)
         if (!decoded || !decoded.exp) return null
 
-        const expiryTime = decoded.exp * 1000 // в миллисекундах
+        const expiryTime = decoded.exp * 1000 
         const currentTime = Date.now()
         const timeLeft = expiryTime - currentTime
 
@@ -57,9 +57,9 @@ const useTokenRefresh = () => {
 
         if (timeLeft <= 0) {
             console.log('🔴 Access токен ИСТЁК!')
-        } else if (timeLeft < 60000) { // меньше 1 минуты
+        } else if (timeLeft < 60000) { 
             console.log(`🟡 Осталось до обновления: ${formatTimeLeft(timeLeft)} (скоро истечёт!)`)
-        } else if (timeLeft < 300000) { // меньше 5 минут
+        } else if (timeLeft < 300000) { 
             console.log(`🟠 Осталось до обновления: ${formatTimeLeft(timeLeft)}`)
         } else {
             console.log(`🟢 Осталось до обновления: ${formatTimeLeft(timeLeft)}`)
@@ -100,7 +100,6 @@ const useTokenRefresh = () => {
             return
         }
 
-        // Если до истечения меньше 30 секунд — обновляем
         if (timeLeft <= 30000 && timeLeft > 0) {
             console.log(`⚠️ Осталось ${formatTimeLeft(timeLeft)} — запускаем обновление...`)
             await performRefresh()
@@ -111,16 +110,13 @@ const useTokenRefresh = () => {
     }
 
     useEffect(() => {
-        // Первоначальный вывод статуса
         logTokenStatus()
 
-        // Запускаем интервал каждые 5 секунд
         intervalRef.current = setInterval(() => {
             logTokenStatus()
             checkAndRefresh()
-        }, 5000) // 5 секунд
+        }, 5000) 
 
-        // Очистка при размонтировании
         return () => {
             if (intervalRef.current) {
                 clearInterval(intervalRef.current)

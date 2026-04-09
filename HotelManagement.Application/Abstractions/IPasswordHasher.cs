@@ -1,5 +1,4 @@
-﻿// HotelManagement.Application/Abstractions/IPasswordHasher.cs
-namespace HotelManagement.Application.Abstractions;
+﻿namespace HotelManagement.Application.Abstractions;
 
 public interface IPasswordHasher
 {

@@ -11,16 +11,13 @@ export const useTheme = () => {
 }
 
 export const ThemeProvider = ({ children }) => {
-    // Получаем сохранённую тему из localStorage или используем 'light'
     const [theme, setTheme] = useState(() => {
         const savedTheme = localStorage.getItem('theme')
         return savedTheme || 'light'
     })
 
     useEffect(() => {
-        // Применяем тему к корневому элементу
         document.documentElement.setAttribute('data-theme', theme)
-        // Сохраняем в localStorage
         localStorage.setItem('theme', theme)
     }, [theme])
 

@@ -1,5 +1,6 @@
 ﻿using HotelManagement.API.Common;
 using HotelManagement.Application.Common;
+using HotelManagement.Application.DTOs;
 using HotelManagement.Application.Features.Hotels;
 using MediatR;
 

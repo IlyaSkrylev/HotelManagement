@@ -13,10 +13,8 @@ public class CreateHotelEndpoint : IEndpoint
                 ILogger<CreateHotelEndpoint> logger,
                 HttpRequest request) =>
         {
-            // Поддержка multipart/form-data для загрузки файлов
             var form = await request.ReadFormAsync();
 
-            // Логирование
             logger.LogInformation("Files count: {Count}", form.Files.Count);
             if (form.Files.Count > 0)
             {

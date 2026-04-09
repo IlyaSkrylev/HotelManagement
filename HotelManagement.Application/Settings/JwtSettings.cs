@@ -1,5 +1,4 @@
-﻿// HotelManagement.Application/Settings/JwtSettings.cs
-namespace HotelManagement.Application.Settings;
+﻿namespace HotelManagement.Application.Settings;
 
 public class JwtSettings
 {

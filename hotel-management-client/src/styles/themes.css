@@ -1,4 +1,3 @@
-/* Светлая тема (по умолчанию) */
 :root,
 [data-theme="light"] {
     --bg-primary: #ffffff;
@@ -19,7 +18,6 @@
     --shadow-hover: 0 4px 16px rgba(0, 0, 0, 0.15);
 }
 
-/* Тёмная тема */
 [data-theme="dark"] {
     --bg-primary: #1a1a2e;
     --bg-secondary: #16213e;

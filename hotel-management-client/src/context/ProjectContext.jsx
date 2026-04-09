@@ -47,7 +47,7 @@ export const ProjectProvider = ({ children }) => {
         setError(null)
         try {
             const response = await hotelApi.create(hotelData)
-            await loadHotels(1, pagination.pageSize)  // возвращаемся на первую страницу
+            await loadHotels(1, pagination.pageSize)  
             return response.data
         } catch (err) {
             setError(err.response?.data?.message || 'Ошибка создания отеля')

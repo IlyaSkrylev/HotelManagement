@@ -1,5 +1,4 @@
-﻿// HotelManagement.Infrastructure/Services/PasswordHasher.cs
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 using System.Text;
 using HotelManagement.Application.Abstractions;
 

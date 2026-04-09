@@ -1,14 +1,20 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import { CLIENT_PORT, SERVER_URL, HOST_IP } from './src/config'
+
 
 export default defineConfig({
     plugins: [react()],
     server: {
-        host: '0.0.0.0',
-        port: 5173,
+        port: CLIENT_PORT,
+        host: HOST_IP,
         proxy: {
             '/api': {
-                target: 'http://192.168.0.143:5030',
+                target: SERVER_URL,
+                changeOrigin: true,
+            },
+            '/uploads': {
+                target: SERVER_URL,
                 changeOrigin: true,
             }
         }

@@ -1,13 +1,13 @@
 import axios from 'axios'
+import { API_URL } from '../config'
 
 const api = axios.create({
-    baseURL: '/api',
+    baseURL: API_URL,
     headers: {
         'Content-Type': 'application/json',
     },
 })
 
-// Переменная для предотвращения множественных запросов на обновление
 let isRefreshing = false
 let failedQueue = []
 
@@ -22,7 +22,6 @@ const processQueue = (error, token = null) => {
     failedQueue = []
 }
 
-// Интерцептор запроса: добавляем токен
 api.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem('accessToken')
@@ -34,18 +33,15 @@ api.interceptors.request.use(
     (error) => Promise.reject(error)
 )
 
-// Интерцептор ответа: обработка 401 (просроченный токен)
 api.interceptors.response.use(
     (response) => response,
     async (error) => {
         const originalRequest = error.config
 
-        // Если ошибка 401 и это не повторный запрос на обновление
         if (error.response?.status === 401 && !originalRequest._retry) {
             originalRequest._retry = true
 
             if (isRefreshing) {
-                // Если уже обновляем токен, добавляем запрос в очередь
                 return new Promise((resolve, reject) => {
                     failedQueue.push({ resolve, reject })
                 })
