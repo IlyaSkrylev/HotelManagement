@@ -1,19 +1,20 @@
 .hotel-create-container {
-    max-width: 800px;
+    max-width: 700px;
     margin: 0 auto;
     padding: 40px 20px;
 }
 
 .hotel-create-card {
     background: var(--bg-card);
-    border-radius: 16px;
+    border-radius: var(--card-radius);
     box-shadow: var(--shadow);
     overflow: hidden;
+    transition: transform 0.2s;
 }
 
 .hotel-create-header {
     padding: 24px 32px;
-    border-bottom: 1px solid var(--border-color);
+    background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -24,19 +25,23 @@
     .hotel-create-header h1 {
         margin: 0;
         font-size: 1.5rem;
-        color: var(--text-primary);
+        color: white;
+        font-weight: 700;
     }
 
 .back-link {
-    color: var(--button-bg);
+    color: white;
     text-decoration: none;
     font-size: 0.9rem;
-    transition: color 0.2s;
+    padding: 6px 14px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 40px;
+    transition: all 0.2s;
 }
 
     .back-link:hover {
-        text-decoration: underline;
-        color: var(--button-hover);
+        background: rgba(255,255,255,0.3);
+        color: white;
     }
 
 .hotel-create-form {
@@ -50,35 +55,39 @@
     .form-group label {
         display: block;
         margin-bottom: 8px;
-        font-weight: 500;
-        color: var(--text-primary);
+        font-weight: 600;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--accent-primary);
     }
 
 .required {
-    color: #dc3545;
+    color: var(--button-danger);
 }
 
 .form-group input,
 .form-group textarea {
     width: 100%;
-    padding: 10px 12px;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    font-size: 1rem;
-    background-color: var(--bg-primary);
+    padding: 12px 16px;
+    border: 2px solid var(--border-color);
+    border-radius: 14px;
+    font-size: 0.95rem;
+    background-color: var(--bg-input);
     color: var(--text-primary);
-    transition: border-color 0.2s;
+    transition: all 0.2s;
 }
 
     .form-group input:focus,
     .form-group textarea:focus {
         outline: none;
-        border-color: var(--button-bg);
+        border-color: var(--accent-primary);
+        box-shadow: 0 0 0 3px rgba(230, 57, 70, 0.2);
     }
 
     .form-group input.error,
     .form-group textarea.error {
-        border-color: #dc3545;
+        border-color: var(--button-danger);
     }
 
 .form-row {
@@ -90,18 +99,18 @@
 .error-message {
     display: block;
     margin-top: 6px;
-    font-size: 0.8rem;
-    color: #dc3545;
+    font-size: 0.75rem;
+    color: var(--button-danger);
 }
 
 .submit-error {
-    background-color: rgba(220, 53, 69, 0.1);
-    border: 1px solid #dc3545;
-    border-radius: 8px;
+    background: rgba(230, 57, 70, 0.1);
+    border: 1px solid var(--button-danger);
+    border-radius: 14px;
     padding: 12px;
     margin-bottom: 24px;
-    color: #dc3545;
-    font-size: 0.9rem;
+    color: var(--button-danger);
+    font-size: 0.85rem;
 }
 
 .form-actions {
@@ -110,37 +119,39 @@
     gap: 16px;
     margin-top: 32px;
     padding-top: 24px;
-    border-top: 1px solid var(--border-color);
+    border-top: 2px solid var(--border-color);
 }
 
 .cancel-btn,
 .submit-btn {
-    padding: 10px 24px;
-    border-radius: 8px;
-    font-size: 1rem;
-    font-weight: 500;
+    padding: 10px 28px;
+    border-radius: 40px;
+    font-size: 0.9rem;
+    font-weight: 600;
     cursor: pointer;
     transition: all 0.2s;
     border: none;
 }
 
 .cancel-btn {
-    background-color: var(--bg-secondary);
-    color: var(--text-primary);
-    border: 1px solid var(--border-color);
+    background: transparent;
+    color: var(--text-secondary);
+    border: 2px solid var(--border-color);
 }
 
     .cancel-btn:hover {
-        background-color: var(--border-color);
+        background: var(--border-color);
+        color: var(--text-primary);
     }
 
 .submit-btn {
-    background-color: var(--button-success);
+    background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
     color: white;
 }
 
     .submit-btn:hover:not(:disabled) {
-        background-color: var(--button-success-hover);
+        transform: translateY(-2px);
+        filter: brightness(1.05);
     }
 
     .submit-btn:disabled {
@@ -156,7 +167,6 @@
 
     .form-row {
         grid-template-columns: 1fr;
-        gap: 24px;
     }
 
     .hotel-create-form {

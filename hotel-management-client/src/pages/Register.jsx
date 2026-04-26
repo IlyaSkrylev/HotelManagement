@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import '../styles/Auth.css'
 
 function Register() {
     const [formData, setFormData] = useState({
@@ -14,7 +15,7 @@ function Register() {
     })
     const [error, setError] = useState('')
     const [loading, setLoading] = useState(false)
-    const { register, loginAfterRegister } = useAuth() 
+    const { register, loginAfterRegister } = useAuth()
     const navigate = useNavigate()
 
     const handleChange = (e) => {
@@ -29,7 +30,7 @@ function Register() {
         e.preventDefault()
 
         if (formData.password !== formData.repPassword) {
-            setError('Пароли не совпадают!')
+            setError('Пароли не совпадают')
             return
         }
 
@@ -45,7 +46,7 @@ function Register() {
             localStorage.setItem('accessToken', accessToken)
             localStorage.setItem('refreshToken', refreshToken)
 
-            loginAfterRegister(userData)  
+            loginAfterRegister(userData)
 
             navigate('/')
         } catch (err) {
@@ -56,85 +57,129 @@ function Register() {
     }
 
     return (
-        <div>
-            <h1>Регистрация</h1>
-            <form onSubmit={handleSubmit}>
-                <div>
-                    <label>Email *</label>
-                    <input
-                        type="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        required
-                    />
+        <div className="auth-container">
+            <div className="auth-card auth-card-wide">
+                <div className="auth-header">
+                    <h2>Создать аккаунт</h2>
+                    <p>Присоединяйтесь к системе управления отелем</p>
                 </div>
-                <div>
-                    <label>Имя *</label>
-                    <input
-                        type="text"
-                        name="firstName"
-                        value={formData.firstName}
-                        onChange={handleChange}
-                        required
-                    />
+
+                <form onSubmit={handleSubmit} className="auth-form">
+                    <div className="form-row-2">
+                        <div className="input-group">
+                            <label>Имя *</label>
+                            <div className="input-wrapper">
+                                <input
+                                    type="text"
+                                    name="firstName"
+                                    value={formData.firstName}
+                                    onChange={handleChange}
+                                    placeholder="Иван"
+                                    required
+                                />
+                            </div>
+                        </div>
+
+                        <div className="input-group">
+                            <label>Фамилия *</label>
+                            <div className="input-wrapper">
+                                <input
+                                    type="text"
+                                    name="lastName"
+                                    value={formData.lastName}
+                                    onChange={handleChange}
+                                    placeholder="Иванов"
+                                    required
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="form-row-2">
+                        <div className="input-group">
+                            <label>Отчество</label>
+                            <div className="input-wrapper">
+                                <input
+                                    type="text"
+                                    name="patronymic"
+                                    value={formData.patronymic}
+                                    onChange={handleChange}
+                                    placeholder="Иванович"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="input-group">
+                            <label>Телефон</label>
+                            <div className="input-wrapper">
+                                <input
+                                    type="tel"
+                                    name="phone"
+                                    value={formData.phone}
+                                    onChange={handleChange}
+                                    placeholder="+375 XX XXX-XX-XX"
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="input-group">
+                        <label>Email *</label>
+                        <div className="input-wrapper">
+                            <input
+                                type="email"
+                                name="email"
+                                value={formData.email}
+                                onChange={handleChange}
+                                placeholder="ivan@example.com"
+                                required
+                            />
+                        </div>
+                    </div>
+
+                    <div className="form-row-2">
+                        <div className="input-group">
+                            <label>Пароль *</label>
+                            <div className="input-wrapper">
+                                <input
+                                    type="password"
+                                    name="password"
+                                    value={formData.password}
+                                    onChange={handleChange}
+                                    placeholder="Минимум 6 символов"
+                                    required
+                                />
+                            </div>
+                        </div>
+
+                        <div className="input-group">
+                            <label>Повторите пароль *</label>
+                            <div className="input-wrapper">
+                                <input
+                                    type="password"
+                                    name="repPassword"
+                                    value={formData.repPassword}
+                                    onChange={handleChange}
+                                    placeholder="Подтвердите пароль"
+                                    required
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    {error && <div className="auth-error">{error}</div>}
+
+                    <button type="submit" disabled={loading} className="auth-btn">
+                        {loading ? 'Регистрация...' : 'Зарегистрироваться'}
+                    </button>
+                </form>
+
+                <div className="auth-footer">
+                    <p>
+                        Уже есть аккаунт? <Link to="/login">Войти</Link>
+                    </p>
                 </div>
-                <div>
-                    <label>Фамилия *</label>
-                    <input
-                        type="text"
-                        name="lastName"
-                        value={formData.lastName}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
-                <div>
-                    <label>Отчество</label>
-                    <input
-                        type="text"
-                        name="patronymic"
-                        value={formData.patronymic}
-                        onChange={handleChange}
-                    />
-                </div>
-                <div>
-                    <label>Телефон</label>
-                    <input
-                        type="tel"
-                        name="phone"
-                        value={formData.phone}
-                        onChange={handleChange}
-                    />
-                </div>
-                <div>
-                    <label>Пароль *</label>
-                    <input
-                        type="password"
-                        name="password"
-                        value={formData.password}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
-                <div>
-                    <label>Повторите пароль *</label>
-                    <input
-                        type="password"
-                        name="repPassword"
-                        value={formData.repPassword}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
-                {error && <div style={{ color: 'red' }}>{error}</div>}
-                <button type="submit" disabled={loading}>
-                    {loading ? 'Регистрация...' : 'Зарегистрироваться'}
-                </button>
-            </form>
-            <p>
-                Уже есть аккаунт? <Link to="/login">Войти</Link>
-            </p>
+            </div>
         </div>
     )
 }

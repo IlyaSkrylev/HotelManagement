@@ -2,60 +2,96 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 8px;
-    margin-top: 40px;
+    gap: 10px;
+    margin-top: 48px;
     padding: 20px;
     flex-wrap: wrap;
 }
 
 .pagination-btn {
-    padding: 8px 16px;
-    background-color: var(--bg-secondary);
-    border: 1px solid var(--border-color);
-    border-radius: 6px;
+    padding: 8px 18px;
+    background: var(--bg-card);
+    border: 2px solid var(--border-color);
+    border-radius: 40px;
     color: var(--text-primary);
     cursor: pointer;
     transition: all 0.2s;
+    font-weight: 500;
 }
 
     .pagination-btn:hover:not(:disabled) {
-        background-color: var(--button-bg);
+        background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
         color: white;
-        border-color: var(--button-bg);
+        border-color: transparent;
     }
 
     .pagination-btn:disabled {
-        opacity: 0.5;
+        opacity: 0.4;
         cursor: not-allowed;
     }
 
 .pagination-numbers {
     display: flex;
-    gap: 4px;
+    gap: 6px;
 }
 
 .pagination-number {
-    min-width: 36px;
-    height: 36px;
+    min-width: 42px;
+    height: 42px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: var(--bg-secondary);
-    border: 1px solid var(--border-color);
-    border-radius: 6px;
+    background: var(--bg-card);
+    border: 2px solid var(--border-color);
+    border-radius: 42px;
     color: var(--text-primary);
     cursor: pointer;
     transition: all 0.2s;
+    font-weight: 500;
 }
 
     .pagination-number:hover {
-        background-color: var(--button-bg);
-        color: white;
-        border-color: var(--button-bg);
+        background: var(--bg-secondary);
+        border-color: var(--accent-primary);
     }
 
     .pagination-number.active {
-        background-color: var(--button-bg);
+        background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
         color: white;
-        border-color: var(--button-bg);
+        border-color: transparent;
+        box-shadow: 0 4px 12px rgba(230, 57, 70, 0.4);
     }
+
+.loading, .error {
+    text-align: center;
+    padding: 60px;
+    font-size: 1.2rem;
+}
+
+.error {
+    color: var(--button-danger);
+}
+
+.no-hotels {
+    text-align: center;
+    padding: 60px;
+    background: var(--bg-secondary);
+    border-radius: var(--card-radius);
+}
+
+    .no-hotels p {
+        margin-bottom: 20px;
+        color: var(--text-secondary);
+    }
+
+@media (max-width: 1100px) {
+    .hotels-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 700px) {
+    .hotels-grid {
+        grid-template-columns: 1fr;
+    }
+}

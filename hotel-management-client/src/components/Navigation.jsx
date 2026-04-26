@@ -2,6 +2,8 @@ import React from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useTheme } from '../context/ThemeContext'
+import { getIconUrl } from '../index'
+import '../styles/Navigation.css'
 
 function Navigation() {
     const { user, logout, isAuthenticated } = useAuth()
@@ -13,49 +15,48 @@ function Navigation() {
         navigate('/login')
     }
 
-    return (
-        <nav style={{
-            padding: '10px',
-            borderBottom: '1px solid var(--border-color)',
-            backgroundColor: 'var(--nav-bg)'
-        }}>
-            <Link to="/" style={{ color: 'var(--text-primary)' }}>Главная</Link>
-            {' | '}
-            <Link to="/hotels" style={{ color: 'var(--text-primary)' }}>Отели</Link>
-            {' | '}
-            <Link to="/employees" style={{ color: 'var(--text-primary)' }}>Сотрудники</Link>
+    const themeIconUrl = getIconUrl(isDark ? 'sun' : 'moon')
+    const profileIconUrl = getIconUrl('profile')
+    const hotelIconUrl = getIconUrl('hotel')
 
-            {isAuthenticated ? (
-                <>
-                    {' | '}
-                    <Link to="/dashboard" style={{ color: 'var(--text-primary)' }}>Панель</Link>
-                    {' | '}
-                    <Link to="/profile" style={{ color: 'var(--text-primary)' }}>Профиль ({user?.email})</Link>
-                    {' | '}
-                    <button onClick={handleLogout} style={{
-                        background: 'none',
-                        border: 'none',
-                        color: 'var(--button-danger)',
-                        cursor: 'pointer'
-                    }}>Выйти</button>
-                </>
-            ) : (
-                <>
-                    {' | '}
-                    <Link to="/login" style={{ color: 'var(--text-primary)' }}>Вход</Link>
-                    {' | '}
-                    <Link to="/register" style={{ color: 'text-primary)' }}>Регистрация</Link>
-                </>
-            )}
-            {' | '}
-            <button onClick={toggleTheme} style={{
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer',
-                fontSize: '1.2rem'
-            }}>
-                {isDark ? '☀️' : '🌙'}
-            </button>
+    return (
+        <nav className="navbar">
+            <div className="navbar-container">
+                <div className="navbar-logo">
+                    <Link to="/" className="logo-link">
+                        <img src={hotelIconUrl} alt="hotel" className="hotel-icon-img"/>
+                        <span className="logo-text">HotelManager</span>
+                    </Link>
+                </div>
+
+                <div className="navbar-links">
+                    <Link to="/" className="nav-link">Главная</Link>
+                    <Link to="/hotels" className="nav-link">Отели</Link>
+                </div>
+
+                <div className="navbar-actions">
+                    {isAuthenticated ? (
+                        <>
+                            <div className="user-greeting">
+                                <img src={profileIconUrl} alt="profile" className="user-avatar-img" />
+                                <span className="user-name">{user?.firstName || user?.email}</span>
+                            </div>
+                            <button onClick={handleLogout} className="nav-btn logout-btn">
+                                Выйти
+                            </button>
+                        </>
+                    ) : (
+                        <>
+                            <Link to="/login" className="nav-btn login-btn">Вход</Link>
+                            <Link to="/register" className="nav-btn register-btn">Регистрация</Link>
+                        </>
+                    )}
+
+                    <button onClick={toggleTheme} className="theme-toggle">
+                        <img src={themeIconUrl} alt="theme" className="theme-icon" />
+                    </button>
+                </div>
+            </div>
         </nav>
     )
 }

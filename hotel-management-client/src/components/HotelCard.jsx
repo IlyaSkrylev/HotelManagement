@@ -1,30 +1,37 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { getImageUrl } from '../config'
+import { getHotelImageUrl, getIconUrl } from '../index'
 import '../styles/HotelCard.css'
 
-const LocationIcon = () => <span className="icon">📍</span>
-const PhoneIcon = () => <span className="icon">📞</span>
-const EmailIcon = () => <span className="icon">✉️</span>
-
-function HotelCard({ hotel, onDelete }) {
+function HotelCard({ hotel, onApplyResume }) {
     const { isAuthenticated } = useAuth()
+    const navigate = useNavigate()
 
-    const handleDelete = () => {
-        if (window.confirm(`Удалить гостиницу "${hotel.name}"?`)) {
-            onDelete(hotel.id)
+    const handleApplyResume = () => {
+        if (!isAuthenticated) {
+            navigate('/login')
+            return
         }
+        onApplyResume(hotel.id)
     }
+
+    const locationIconUrl = getIconUrl('location')
+    const phoneIconUrl = getIconUrl('phone')
+    const emailIconUrl = getIconUrl('email')
+    const hotelIconUrl = getIconUrl('hotel')
 
     return (
         <div className="hotel-card">
             <div className="hotel-card__image">
                 {hotel.imageUrl ? (
-                    <img src={getImageUrl(hotel.imageUrl)} alt={hotel.name} />
+                    <img
+                        src={getHotelImageUrl(hotel.imageUrl)}
+                        alt={hotel.name}
+                    />
                 ) : (
                     <div className="hotel-card__image-placeholder">
-                        🏨
+                        <img src={hotelIconUrl} alt="hotel" className="placeholder-icon" />
                     </div>
                 )}
             </div>
@@ -34,21 +41,21 @@ function HotelCard({ hotel, onDelete }) {
 
                 {hotel.address && (
                     <div className="hotel-card__detail">
-                        <LocationIcon />
+                        <img src={locationIconUrl} alt="location" className="icon-img" />
                         <span>{hotel.address}</span>
                     </div>
                 )}
 
                 {hotel.phone && (
                     <div className="hotel-card__detail">
-                        <PhoneIcon />
+                        <img src={phoneIconUrl} alt="phone" className="icon-img" />
                         <span>{hotel.phone}</span>
                     </div>
                 )}
 
                 {hotel.email && (
                     <div className="hotel-card__detail">
-                        <EmailIcon />
+                        <img src={emailIconUrl} alt="email" className="icon-img" />
                         <span>{hotel.email}</span>
                     </div>
                 )}
@@ -64,16 +71,11 @@ function HotelCard({ hotel, onDelete }) {
                 </p>
             </div>
 
-            {isAuthenticated && (
-                <div className="hotel-card__actions">
-                    <Link to={`/hotels/edit/${hotel.id}`} className="edit-btn">
-                        Редактировать
-                    </Link>
-                    <button onClick={handleDelete} className="delete-btn">
-                        Удалить
-                    </button>
-                </div>
-            )}
+            <div className="hotel-card__actions">
+                <button onClick={handleApplyResume} className="resume-btn">
+                    📄 Подать резюме
+                </button>
+            </div>
         </div>
     )
 }

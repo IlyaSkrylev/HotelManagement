@@ -44,43 +44,43 @@ const useTokenRefresh = () => {
         const accessToken = localStorage.getItem('accessToken')
 
         if (!accessToken) {
-            console.log('🔴 Нет access токена')
+            console.log('Нет access токена')
             return
         }
 
         const timeLeft = getTimeUntilExpiry(accessToken)
 
         if (timeLeft === null) {
-            console.log('⚠️ Не удалось прочитать токен')
+            console.log('Не удалось прочитать токен')
             return
         }
 
         if (timeLeft <= 0) {
-            console.log('🔴 Access токен ИСТЁК!')
+            console.log('Access токен ИСТЁК!')
         } else if (timeLeft < 60000) { 
-            console.log(`🟡 Осталось до обновления: ${formatTimeLeft(timeLeft)} (скоро истечёт!)`)
+            console.log(`Осталось до обновления: ${formatTimeLeft(timeLeft)} (скоро истечёт!)`)
         } else if (timeLeft < 300000) { 
-            console.log(`🟠 Осталось до обновления: ${formatTimeLeft(timeLeft)}`)
+            console.log(`Осталось до обновления: ${formatTimeLeft(timeLeft)}`)
         } else {
-            console.log(`🟢 Осталось до обновления: ${formatTimeLeft(timeLeft)}`)
+            console.log(`Осталось до обновления: ${formatTimeLeft(timeLeft)}`)
         }
     }
 
     const performRefresh = async () => {
         const refreshTokenStr = localStorage.getItem('refreshToken')
         if (!refreshTokenStr) {
-            console.log('❌ Нет refresh токена, пропускаем обновление')
+            console.log('Нет refresh токена, пропускаем обновление')
             return false
         }
 
         try {
-            console.log('🔄 Попытка обновления токенов...')
+            console.log('Попытка обновления токенов...')
             const newTokens = await refreshToken(refreshTokenStr)
-            console.log('✅ Токены успешно обновлены!')
-            console.log(`📝 Новый access токен истечёт через: ${formatTimeLeft(getTimeUntilExpiry(newTokens.accessToken))}`)
+            console.log('Токены успешно обновлены!')
+            console.log(`Новый access токен истечёт через: ${formatTimeLeft(getTimeUntilExpiry(newTokens.accessToken))}`)
             return true
         } catch (error) {
-            console.error('❌ Ошибка при обновлении токенов:', error)
+            console.error('Ошибка при обновлении токенов:', error)
             return false
         }
     }
@@ -89,22 +89,22 @@ const useTokenRefresh = () => {
         const accessToken = localStorage.getItem('accessToken')
 
         if (!accessToken) {
-            console.log('🔴 Нет access токена')
+            console.log('Нет access токена')
             return
         }
 
         const timeLeft = getTimeUntilExpiry(accessToken)
 
         if (timeLeft === null) {
-            console.log('⚠️ Не удалось прочитать токен')
+            console.log('Не удалось прочитать токен')
             return
         }
 
         if (timeLeft <= 30000 && timeLeft > 0) {
-            console.log(`⚠️ Осталось ${formatTimeLeft(timeLeft)} — запускаем обновление...`)
+            console.log(`Осталось ${formatTimeLeft(timeLeft)} — запускаем обновление...`)
             await performRefresh()
         } else if (timeLeft <= 0) {
-            console.log('🔴 Токен истёк! Запускаем обновление...')
+            console.log('Токен истёк! Запускаем обновление...')
             await performRefresh()
         }
     }

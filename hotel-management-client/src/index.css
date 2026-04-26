@@ -1,4 +1,4 @@
-@import './src/styles/themes.css';
+@import './styles/themes.css';
 
 * {
     margin: 0;
@@ -7,79 +7,141 @@
 }
 
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: var(--bg-primary);
+    font-family: 'Inter', 'Segoe UI', 'Poppins', system-ui, -apple-system, sans-serif;
+    background: var(--gradient-bg);
     color: var(--text-primary);
-    transition: background-color 0.3s ease, color 0.3s ease;
+    transition: background 0.2s ease, color 0.2s ease;
+    min-height: 100vh;
+    line-height: 1.5;
 }
 
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--accent-primary);
+    border-radius: 10px;
+}
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: var(--accent-primary-hover);
+    }
+
 .app {
-    max-width: 1200px;
+    max-width: 1400px;
     margin: 0 auto;
-    padding: 20px;
+    padding: 20px 24px;
+    min-height: 100vh;
 }
 
 main {
-    margin-top: 20px;
+    margin-top: 28px;
 }
 
 button {
     cursor: pointer;
-    padding: 8px 16px;
-    background-color: #007bff;
+    padding: 10px 20px;
+    background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
     color: white;
     border: none;
-    border-radius: 4px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    transition: all 0.2s ease;
+    box-shadow: var(--shadow);
 }
 
-    button:hover {
-        background-color: #0056b3;
+    button:hover:not(:disabled) {
+        transform: translateY(-2px);
+        filter: brightness(1.05);
+        box-shadow: var(--shadow-hover);
+    }
+
+    button:active:not(:disabled) {
+        transform: translateY(0);
     }
 
     button:disabled {
-        background-color: #ccc;
+        opacity: 0.6;
         cursor: not-allowed;
+        transform: none;
     }
 
-input, textarea {
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+input, textarea, select {
+    padding: 12px 16px;
+    border: 2px solid var(--border-color);
+    border-radius: 14px;
+    background-color: var(--bg-input);
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+    outline: none;
     width: 100%;
-    max-width: 400px;
 }
+
+    input:focus, textarea:focus, select:focus {
+        border-color: var(--accent-primary);
+        box-shadow: 0 0 0 3px rgba(230, 57, 70, 0.2);
+    }
+
+    input:hover, textarea:hover, select:hover {
+        border-color: var(--text-muted);
+    }
 
 label {
     display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-}
-
-div {
-    margin-bottom: 10px;
+    margin-bottom: 8px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--accent-primary);
 }
 
 a {
-    color: #007bff;
+    color: var(--accent-primary);
     text-decoration: none;
+    transition: color 0.2s;
 }
 
     a:hover {
-        text-decoration: underline;
+        color: var(--accent-primary-hover);
+        text-decoration: none;
     }
 
 table {
     width: 100%;
     border-collapse: collapse;
-    background-color: white;
+    background: var(--bg-card);
+    border-radius: var(--card-radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
 }
 
 th, td {
-    padding: 10px;
+    padding: 12px 16px;
     text-align: left;
-    border: 1px solid #ddd;
+    border-bottom: 1px solid var(--border-color);
 }
 
 th {
-    background-color: #f0f0f0;
+    background-color: var(--bg-secondary);
+    color: var(--accent-primary);
+    font-weight: 600;
+}
+
+@media (max-width: 768px) {
+    .app {
+        padding: 16px;
+    }
+
+    button {
+        padding: 8px 16px;
+    }
 }
