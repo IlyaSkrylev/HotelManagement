@@ -2,12 +2,20 @@ import { useEffect, useRef } from 'react'
 import { useAuth } from '../context/AuthContext'
 
 const useTokenRefresh = () => {
-    const { refreshToken } = useAuth()
+    const { refreshToken, logout } = useAuth()
     const intervalRef = useRef(null)
 
     const decodeToken = (token) => {
         try {
-            const payload = token.split('.')[1]
+            if (!token || typeof token !== 'string') return null
+            const parts = token.split('.')
+            if (parts.length !== 3) return null
+
+            const payload = parts[1]
+                .replace(/-/g, '+')
+                .replace(/_/g, '/')
+                .padEnd(Math.ceil(parts[1].length / 4) * 4, '=')
+
             const decoded = JSON.parse(atob(payload))
             return decoded
         } catch (error) {
@@ -51,7 +59,8 @@ const useTokenRefresh = () => {
         const timeLeft = getTimeUntilExpiry(accessToken)
 
         if (timeLeft === null) {
-            console.log('Не удалось прочитать токен')
+            console.log('Access токен невалидный, выполняем выход')
+            logout()
             return
         }
 
@@ -96,7 +105,8 @@ const useTokenRefresh = () => {
         const timeLeft = getTimeUntilExpiry(accessToken)
 
         if (timeLeft === null) {
-            console.log('Не удалось прочитать токен')
+            console.log('Access токен невалидный, выполняем выход')
+            logout()
             return
         }
 
@@ -122,7 +132,7 @@ const useTokenRefresh = () => {
                 clearInterval(intervalRef.current)
             }
         }
-    }, [])
+    }, [refreshToken, logout])
 }
 
 export default useTokenRefresh

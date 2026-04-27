@@ -44,33 +44,16 @@ main {
     margin-top: 28px;
 }
 
+/* Глобальные стили для кнопок - только минимальные, без переопределения */
 button {
     cursor: pointer;
-    padding: 10px 20px;
-    background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
-    color: white;
+    font-family: inherit;
     border: none;
-    border-radius: 12px;
-    font-weight: 600;
-    font-size: 0.85rem;
-    transition: all 0.2s ease;
-    box-shadow: var(--shadow);
 }
-
-    button:hover:not(:disabled) {
-        transform: translateY(-2px);
-        filter: brightness(1.05);
-        box-shadow: var(--shadow-hover);
-    }
-
-    button:active:not(:disabled) {
-        transform: translateY(0);
-    }
 
     button:disabled {
         opacity: 0.6;
         cursor: not-allowed;
-        transform: none;
     }
 
 input, textarea, select {
@@ -86,6 +69,7 @@ input, textarea, select {
 }
 
     input:focus, textarea:focus, select:focus {
+        outline: none;
         border-color: var(--accent-primary);
         box-shadow: 0 0 0 3px rgba(230, 57, 70, 0.2);
     }
@@ -139,9 +123,5 @@ th {
 @media (max-width: 768px) {
     .app {
         padding: 16px;
-    }
-
-    button {
-        padding: 8px 16px;
     }
 }

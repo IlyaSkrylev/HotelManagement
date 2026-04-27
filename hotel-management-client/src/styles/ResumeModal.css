@@ -1,0 +1,334 @@
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: var(--bg-card);
+    border-radius: 24px;
+    width: 520px;
+    max-width: 90%;
+    max-height: 85vh;
+    overflow-y: auto;
+    box-shadow: var(--shadow-hover);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+    .modal-header h3 {
+        margin: 0;
+        font-size: 1.2rem;
+        font-weight: 600;
+        background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+        background-clip: text;
+        -webkit-background-clip: text;
+        color: transparent;
+    }
+
+.hotel-name {
+    color: var(--accent-primary);
+    margin-left: 6px;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 28px;
+    cursor: pointer;
+    color: var(--text-secondary);
+    padding: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s;
+}
+
+    .modal-close:hover {
+        background: var(--bg-secondary);
+        color: var(--text-primary);
+    }
+
+.modal-form {
+    padding: 20px 24px;
+}
+
+    .modal-form .form-group {
+        margin-bottom: 16px;
+    }
+
+        .modal-form .form-group:last-of-type {
+            margin-bottom: 0;
+        }
+
+    .modal-form label {
+        display: block;
+        margin-bottom: 6px;
+        font-weight: 600;
+        font-size: 13px;
+        letter-spacing: 0.5px;
+        color: var(--accent-primary);
+        text-transform: none !important;
+    }
+
+    .modal-form input,
+    .modal-form textarea {
+        width: 100%;
+        padding: 10px 14px;
+        border: 2px solid var(--border-color);
+        border-radius: 12px;
+        background: var(--bg-input);
+        color: var(--text-primary);
+        font-size: 14px;
+        transition: all 0.2s;
+        box-sizing: border-box;
+    }
+
+        .modal-form input:focus,
+        .modal-form textarea:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(230, 57, 70, 0.1);
+        }
+
+        .modal-form input::placeholder,
+        .modal-form textarea::placeholder {
+            color: var(--text-muted);
+        }
+
+/* Группа радио кнопок */
+.resume-options-group {
+    background: var(--bg-secondary);
+    border-radius: 16px;
+    overflow: hidden;
+    padding: 12px 0;
+}
+
+.resume-option {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 8px 16px;
+}
+
+    .resume-option.disabled {
+        opacity: 0.6;
+    }
+
+.resume-radio {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    cursor: pointer;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: auto !important;
+    flex-direction: row !important;
+    background: none !important;
+}
+
+    .resume-radio.disabled {
+        cursor: not-allowed;
+    }
+
+    .resume-radio input {
+        width: 18px !important;
+        height: 18px !important;
+        cursor: pointer;
+        accent-color: var(--accent-primary);
+        margin: 0 !important;
+        padding: 0 !important;
+        flex-shrink: 0 !important;
+        order: 0 !important;
+        position: static !important;
+    }
+
+        .resume-radio input:disabled {
+            cursor: not-allowed;
+        }
+
+.radio-label {
+    font-size: 14px;
+    color: var(--text-primary);
+    font-weight: normal;
+    text-transform: none !important;
+    letter-spacing: normal;
+    margin: 0 !important;
+    padding: 0 !important;
+    order: 1 !important;
+}
+
+    .radio-label.disabled {
+        color: var(--text-muted);
+    }
+
+/* Блок с информацией о резюме из профиля */
+.profile-resume-info {
+    margin-left: 30px;
+    margin-top: 4px;
+    text-align: left;
+}
+
+.profile-resume-name {
+    font-size: 13px;
+    color: var(--accent-primary);
+    background: var(--bg-card);
+    padding: 4px 12px;
+    border-radius: 16px;
+    display: inline-block;
+}
+
+    .profile-resume-name.disabled {
+        font-size: 13px;
+        color: var(--text-secondary);
+        background: var(--bg-secondary);
+        padding: 4px 12px;
+        border-radius: 16px;
+        display: inline-block;
+        font-weight: 500;
+    }
+
+/* Кнопка выбора файла */
+.file-upload-wrapper {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-top: 8px;
+}
+
+.file-upload-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 8px 20px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 40px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 13px;
+    color: var(--text-primary);
+    min-width: 200px;
+    text-transform: none !important;
+}
+
+    .file-upload-btn:hover {
+        border-color: var(--accent-primary);
+        background: var(--bg-secondary);
+    }
+
+    .file-upload-btn span {
+        text-transform: none !important;
+        font-size: 13px;
+        font-weight: normal;
+    }
+
+.clip-icon {
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
+}
+
+/* Кнопки */
+.modal-buttons {
+    display: flex;
+    gap: 16px;
+    margin-top: 20px;
+    width: 100%;
+}
+
+    .modal-buttons .cancel-btn,
+    .modal-buttons .submit-btn {
+        flex: 1;
+        min-width: 0;
+        padding: 0 20px;
+        border-radius: 40px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-align: center;
+        height: 44px;
+        width: auto;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        box-sizing: border-box;
+        margin: 0;
+        text-decoration: none;
+        background: none;
+        font-family: inherit;
+        line-height: normal;
+        vertical-align: middle;
+        text-transform: none !important;
+    }
+
+        .modal-buttons .cancel-btn:active,
+        .modal-buttons .submit-btn:active {
+            transform: none;
+        }
+
+    .modal-buttons .cancel-btn {
+        background: transparent;
+        border: 2px solid var(--border-color);
+        color: var(--text-secondary);
+    }
+
+        .modal-buttons .cancel-btn:hover {
+            background: var(--bg-secondary);
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+        }
+
+    .modal-buttons .submit-btn {
+        background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+        color: white;
+        border: 2px solid transparent;
+    }
+
+        .modal-buttons .submit-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            filter: brightness(1.05);
+        }
+
+    .modal-buttons button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .modal-buttons .cancel-btn span,
+    .modal-buttons .submit-btn span {
+        display: inline-block;
+        line-height: 1;
+        text-transform: none !important;
+    }
+
+/* Дополнительное отключение капса для всех элементов */
+.modal-form span,
+.modal-form button,
+.modal-form div,
+.file-upload-btn,
+.file-upload-btn span,
+.cancel-btn,
+.submit-btn {
+    text-transform: none !important;
+}

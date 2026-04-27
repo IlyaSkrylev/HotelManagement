@@ -16,6 +16,7 @@ public class User : IEntity
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset UpdatedAt { get; set; }
     public DateTimeOffset? LastLogin { get; set; }
+    public string? ResumeUrl { get; set; }
 
     // Refresh Token поля
     public string? RefreshToken { get; set; }

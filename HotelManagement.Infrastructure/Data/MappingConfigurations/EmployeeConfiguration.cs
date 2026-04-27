@@ -19,6 +19,10 @@ public class EmployeeConfiguration : IEntityTypeConfiguration<Employee>
             .HasColumnName("user_id")
             .IsRequired();
 
+        builder.Property(x => x.HotelId)  
+            .HasColumnName("hotel_id")
+            .IsRequired();
+
         builder.Property(x => x.DepartmentId)
             .HasColumnName("department_id")
             .IsRequired();
@@ -67,6 +71,11 @@ public class EmployeeConfiguration : IEntityTypeConfiguration<Employee>
         builder.HasOne(x => x.User)
             .WithMany(u => u.Employees)
             .HasForeignKey(x => x.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne(x => x.Hotel)
+            .WithMany()
+            .HasForeignKey(x => x.HotelId)
             .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasOne(x => x.Department)

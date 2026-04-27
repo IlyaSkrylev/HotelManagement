@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext'
 import { getIconUrl } from '../index'
 import HotelCard from '../components/HotelCard'
 import Pagination from '../components/Pagination'
+import ResumeModal from '../components/ResumeModal'
 import '../styles/Hotels.css'
 
 function Hotels() {
@@ -14,6 +15,8 @@ function Hotels() {
     const [searchTerm, setSearchTerm] = useState('')
     const [filteredHotels, setFilteredHotels] = useState([])
     const searchIconUrl = getIconUrl('search')
+    const [showResumeModal, setShowResumeModal] = useState(false)
+    const [selectedHotel, setSelectedHotel] = useState(null)
 
     useEffect(() => {
         loadHotels(1, 100)
@@ -35,13 +38,17 @@ function Hotels() {
         window.scrollTo({ top: 0, behavior: 'smooth' })
     }
 
-    const handleApplyResume = (hotelId) => {
+    const handleApplyResume = (hotelId, hotelName) => {
         if (!isAuthenticated) {
             navigate('/login')
             return
         }
-        // Здесь будет логика подачи резюме
-        alert(`Подача резюме в гостиницу ID: ${hotelId}`)
+        setSelectedHotel({ id: hotelId, name: hotelName })
+        setShowResumeModal(true)
+    }
+
+    const handleResumeSuccess = () => {
+        alert('Резюме успешно подано')
     }
 
     if (loading) return <div className="loading">Загрузка...</div>
@@ -93,6 +100,15 @@ function Hotels() {
                     currentPage={pagination.currentPage}
                     totalPages={pagination.totalPages}
                     onPageChange={handlePageChange}
+                />
+            )}
+
+            {showResumeModal && selectedHotel && (
+                <ResumeModal
+                    hotelId={selectedHotel.id}
+                    hotelName={selectedHotel.name}
+                    onClose={() => setShowResumeModal(false)}
+                    onSuccess={handleResumeSuccess}
                 />
             )}
         </div>

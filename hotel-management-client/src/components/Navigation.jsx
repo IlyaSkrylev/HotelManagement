@@ -2,7 +2,7 @@ import React from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useTheme } from '../context/ThemeContext'
-import { getIconUrl } from '../index'
+import { getIconUrl, getImageUrl } from '../index'
 import '../styles/Navigation.css'
 
 function Navigation() {
@@ -17,14 +17,14 @@ function Navigation() {
 
     const themeIconUrl = getIconUrl(isDark ? 'sun' : 'moon')
     const profileIconUrl = getIconUrl('profile')
-    const hotelIconUrl = getIconUrl('hotel')
+
+    const avatarUrl = user?.avatarUrl ? getImageUrl(user.avatarUrl) : null
 
     return (
         <nav className="navbar">
             <div className="navbar-container">
                 <div className="navbar-logo">
                     <Link to="/" className="logo-link">
-                        <img src={hotelIconUrl} alt="hotel" className="hotel-icon-img"/>
                         <span className="logo-text">HotelManager</span>
                     </Link>
                 </div>
@@ -37,10 +37,14 @@ function Navigation() {
                 <div className="navbar-actions">
                     {isAuthenticated ? (
                         <>
-                            <div className="user-greeting">
-                                <img src={profileIconUrl} alt="profile" className="user-avatar-img" />
+                            <Link to="/profile" className="user-greeting">
+                                {avatarUrl ? (
+                                    <img src={avatarUrl} alt="avatar" className="user-avatar-img" />
+                                ) : (
+                                    <img src={profileIconUrl} alt="profile" className="user-avatar-img" />
+                                )}
                                 <span className="user-name">{user?.firstName || user?.email}</span>
-                            </div>
+                            </Link>
                             <button onClick={handleLogout} className="nav-btn logout-btn">
                                 Выйти
                             </button>

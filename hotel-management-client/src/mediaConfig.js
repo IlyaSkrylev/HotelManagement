@@ -26,7 +26,8 @@ export const mediaPaths = {
         timeManagement: `${UPLOADS_PATH}/${MEDIA_CATEGORIES.ICONS}/timemanagement.png`,
         taskPlanning: `${UPLOADS_PATH}/${MEDIA_CATEGORIES.ICONS}/taskplanning.png`,
         report: `${UPLOADS_PATH}/${MEDIA_CATEGORIES.ICONS}/report.png`,
-        photoGallery: `${UPLOADS_PATH}/${MEDIA_CATEGORIES.ICONS}/photogalery.png`
+        photoGallery: `${UPLOADS_PATH}/${MEDIA_CATEGORIES.ICONS}/photogalery.png`,
+        clip: `${UPLOADS_PATH}/${MEDIA_CATEGORIES.ICONS}/clip.png`
     }
 }
 
@@ -44,7 +45,8 @@ export const getIconUrl = (iconName) => {
         timeManagement: mediaPaths.icons.timeManagement,
         taskPlanning: mediaPaths.icons.taskPlanning,
         report: mediaPaths.icons.report,
-        photoGallery: mediaPaths.icons.photoGallery
+        photoGallery: mediaPaths.icons.photoGallery,
+        clip: mediaPaths.icons.clip
     }
 
     const iconPath = iconMap[iconName]

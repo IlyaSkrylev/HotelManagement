@@ -3,6 +3,7 @@ using System;
 using HotelManagement.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HotelManagement.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260427114855_AddResumeUrlToUser")]
+    partial class AddResumeUrlToUser
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -104,10 +107,6 @@ namespace HotelManagement.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("hire_date");
 
-                    b.Property<long>("HotelId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("hotel_id");
-
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean")
                         .HasColumnName("is_active");
@@ -143,8 +142,6 @@ namespace HotelManagement.Infrastructure.Migrations
                     b.HasIndex("DepartmentId");
 
                     b.HasIndex("EmploymentTypeId");
-
-                    b.HasIndex("HotelId");
 
                     b.HasIndex("UserId");
 
@@ -957,12 +954,6 @@ namespace HotelManagement.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("HotelManagement.Domain.Entities.Hotel", "Hotel")
-                        .WithMany()
-                        .HasForeignKey("HotelId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.HasOne("HotelManagement.Domain.Entities.User", "User")
                         .WithMany("Employees")
                         .HasForeignKey("UserId")
@@ -972,8 +963,6 @@ namespace HotelManagement.Infrastructure.Migrations
                     b.Navigation("Department");
 
                     b.Navigation("EmploymentType");
-
-                    b.Navigation("Hotel");
 
                     b.Navigation("User");
                 });

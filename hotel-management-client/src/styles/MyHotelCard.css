@@ -1,0 +1,186 @@
+.my-hotel-card {
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-card);
+    border-radius: var(--card-radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    transition: all 0.3s cubic-bezier(0.2, 0, 0, 1);
+    height: 100%;
+    min-height: 520px;
+}
+
+    .my-hotel-card:hover {
+        transform: translateY(-6px);
+        box-shadow: var(--shadow-hover);
+    }
+
+.my-hotel-card__image {
+    width: 100%;
+    height: 200px;
+    background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    flex-shrink: 0;
+    position: relative;
+}
+
+    .my-hotel-card__image::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 40px;
+        background: linear-gradient(to top, var(--bg-card), transparent);
+    }
+
+    .my-hotel-card__image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+
+.my-hotel-card:hover .my-hotel-card__image img {
+    transform: scale(1.03);
+}
+
+.my-hotel-card__image-placeholder {
+    font-size: 4rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    color: white;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+}
+
+.placeholder-icon {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+}
+
+.my-hotel-card__info {
+    padding: 18px 18px 12px;
+    flex-shrink: 0;
+}
+
+.my-hotel-card__title {
+    margin: 0 0 14px 0;
+    font-size: 1.25rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+}
+
+.my-hotel-card__position {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+    padding: 6px 10px;
+    background: var(--bg-secondary);
+    border-radius: 8px;
+    font-size: 0.85rem;
+}
+
+.position-label {
+    font-weight: 600;
+    color: var(--accent-primary);
+}
+
+.position-value {
+    color: var(--text-primary);
+}
+
+.my-hotel-card__detail {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    word-break: break-word;
+}
+
+    .my-hotel-card__detail .icon-img {
+        width: 16px;
+        height: 16px;
+        object-fit: contain;
+    }
+
+.my-hotel-card__divider {
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent-primary), transparent);
+    margin: 4px 18px 0;
+    flex-shrink: 0;
+    border-radius: 2px;
+}
+
+.my-hotel-card__description {
+    padding: 14px 18px;
+    flex: 1;
+}
+
+    .my-hotel-card__description p {
+        margin: 0;
+        font-size: 0.85rem;
+        line-height: 1.55;
+        color: var(--text-secondary);
+    }
+
+.my-hotel-card__actions {
+    display: flex;
+    gap: 12px;
+    padding: 12px 18px 18px;
+    border-top: 1px solid var(--border-color);
+    flex-shrink: 0;
+}
+
+.dashboard-btn {
+    width: 100%;
+    padding: 10px 16px;
+    background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+    color: white;
+    border: none;
+    border-radius: 40px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+    text-decoration: none;
+}
+
+    .dashboard-btn:hover {
+        transform: translateY(-2px);
+        filter: brightness(1.05);
+    }
+
+.my-hotel-card__department,
+.my-hotel-card__hire-date {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.department-label,
+.hire-date-label {
+    font-weight: 600;
+    color: var(--accent-primary);
+}
+
+.department-value,
+.hire-date-value {
+    color: var(--text-primary);
+}

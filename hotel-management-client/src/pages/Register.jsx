@@ -15,7 +15,7 @@ function Register() {
     })
     const [error, setError] = useState('')
     const [loading, setLoading] = useState(false)
-    const { register, loginAfterRegister } = useAuth()
+    const { register } = useAuth()
     const navigate = useNavigate()
 
     const handleChange = (e) => {
@@ -39,14 +39,7 @@ function Register() {
 
         try {
             const { repPassword, ...registerData } = formData
-            const result = await register(registerData)
-
-            const { accessToken, refreshToken, ...userData } = result.data
-
-            localStorage.setItem('accessToken', accessToken)
-            localStorage.setItem('refreshToken', refreshToken)
-
-            loginAfterRegister(userData)
+            await register(registerData)
 
             navigate('/')
         } catch (err) {

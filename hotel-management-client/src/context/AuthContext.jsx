@@ -63,17 +63,45 @@ export const AuthProvider = ({ children }) => {
 
     const login = async (email, password) => {
         const response = await authApi.login(email, password)
-        const { accessToken, refreshToken, ...userData } = response.data.data
+        const { accessToken, refreshToken } = response.data.data
+
         localStorage.setItem('accessToken', accessToken)
         localStorage.setItem('refreshToken', refreshToken)
-        setUser(userData)
-        setIsAuthenticated(true)
-        return response.data
+
+        try {
+            const profileResponse = await authApi.getProfile()
+            const userData = profileResponse.data.data
+            setUser(userData)
+            setIsAuthenticated(true)
+            return { ...response.data, data: userData }
+        } catch (error) {
+            console.error('Failed to load profile after login:', error)
+            const { accessToken: token, refreshToken: rToken, ...userData } = response.data.data
+            setUser(userData)
+            setIsAuthenticated(true)
+            return response.data
+        }
     }
 
     const register = async (userData) => {
         const response = await authApi.register(userData)
-        return response.data
+        const { accessToken, refreshToken } = response.data.data
+
+        localStorage.setItem('accessToken', accessToken)
+        localStorage.setItem('refreshToken', refreshToken)
+
+        try {
+            const profileResponse = await authApi.getProfile()
+            const registeredUser = profileResponse.data.data
+            setUser(registeredUser)
+            setIsAuthenticated(true)
+            return { ...response.data, data: registeredUser }
+        } catch (error) {
+            const { accessToken: token, refreshToken: rToken, ...registeredUser } = response.data.data
+            setUser(registeredUser)
+            setIsAuthenticated(true)
+            return response.data
+        }
     }
 
     const logout = () => {
@@ -83,10 +111,9 @@ export const AuthProvider = ({ children }) => {
         setIsAuthenticated(false)
     }
 
-    const updateProfile = async (data) => {
-        const response = await authApi.updateProfile(data)
-        setUser(response.data.data)
-        return response.data
+    const updateProfile = (data) => {
+        setUser(prevUser => ({ ...prevUser, ...data }))
+        return data
     }
 
     const refreshToken = async (refreshTokenStr) => {

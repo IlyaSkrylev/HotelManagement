@@ -6,7 +6,8 @@ import Login from '../pages/Login'
 import Register from '../pages/Register'
 import Hotels from '../pages/Hotels'
 import HotelCreate from '../pages/HotelCreate'
-
+import Profile from '../pages/Profile'
+import HotelManagement from '../pages/HotelManagement'
 
 function PrivateRoute({ children }) {
     const { isAuthenticated } = useAuth()
@@ -20,6 +21,7 @@ function AppRoutes() {
             <Route path="/login" element={<Login />} />
             <Route path="/hotels" element={<Hotels />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/profile" element={<Profile /> } />
             <Route
                 path="/hotels/create"
                 element={
@@ -28,6 +30,9 @@ function AppRoutes() {
                     </PrivateRoute>
                 }
             />
+            <Route path="/hotels/:hotelId/management" element={
+                <PrivateRoute><HotelManagement /></PrivateRoute>
+            } />
         </Routes>
     )
 }

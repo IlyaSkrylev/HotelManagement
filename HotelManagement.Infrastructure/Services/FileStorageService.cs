@@ -37,7 +37,9 @@ public class FileStorageService : IFileStorageService
             _logger.LogInformation("Created folder: {Folder}", uploadsFolder);
         }
 
-        var uniqueFileName = $"{Guid.NewGuid()}_{Path.GetFileName(file.FileName)}";
+        var extension = Path.GetExtension(file.FileName);
+        var shortId = Guid.NewGuid().ToString("N")[..8];
+        var uniqueFileName = $"{DateTime.UtcNow:yyyyMMddHHmmss}_{shortId}{extension}";
         var filePath = Path.Combine(uploadsFolder, uniqueFileName);
 
         _logger.LogInformation("Saving to: {FilePath}", filePath);

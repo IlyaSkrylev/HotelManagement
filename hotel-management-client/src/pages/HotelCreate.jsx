@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useProject } from '../context/ProjectContext'
+import { getIconUrl } from '../index'
 import '../styles/HotelCreate.css'
 
 function HotelCreate() {
@@ -16,11 +17,20 @@ function HotelCreate() {
         description: '',
         image: null
     })
+    const [imagePreview, setImagePreview] = useState(null)
+
+    const clipIconUrl = getIconUrl('clip')
 
     const handleChange = (e) => {
         const { name, value, type, files } = e.target
         if (type === 'file') {
-            setFormData(prev => ({ ...prev, [name]: files[0] }))
+            const file = files[0]
+            setFormData(prev => ({ ...prev, [name]: file }))
+            if (file) {
+                setImagePreview(URL.createObjectURL(file))
+            } else {
+                setImagePreview(null)
+            }
         } else {
             setFormData(prev => ({ ...prev, [name]: value }))
         }
@@ -154,14 +164,26 @@ function HotelCreate() {
                     </div>
 
                     <div className="form-group">
-                        <label htmlFor="image">Фото гостиницы</label>
-                        <input
-                            type="file"
-                            id="image"
-                            name="image"
-                            accept="image/*"
-                            onChange={handleChange}
-                        />
+                        <label>Фотография гостиницы</label>
+                        <div className="file-upload-wrapper">
+                            <label className="file-upload-label">
+                                <img src={clipIconUrl} alt="clip" className="clip-icon" />
+                                <span>{formData.image ? formData.image.name : 'Выберите фотографию'}</span>
+                                <input
+                                    type="file"
+                                    id="image"
+                                    name="image"
+                                    accept="image/*"
+                                    onChange={handleChange}
+                                    className="file-input-hidden"
+                                />
+                            </label>
+                        </div>
+                        {imagePreview && (
+                            <div className="image-preview">
+                                <img src={imagePreview} alt="preview" />
+                            </div>
+                        )}
                     </div>
 
                     {errors.submit && (

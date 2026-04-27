@@ -6,6 +6,7 @@ public class Employee : IEntity
 {
     public long Id { get; set; }
     public long UserId { get; set; }
+    public long HotelId { get; set; }
     public long DepartmentId { get; set; }
     public required string Position { get; set; }
     public DateTimeOffset HireDate { get; set; }
@@ -20,6 +21,7 @@ public class Employee : IEntity
     public DateTimeOffset ShiftCycleStartDate { get; set; }
 
     public virtual User User { get; set; } = null!;
+    public virtual Hotel Hotel { get; set; } = null!;
     public virtual Department Department { get; set; } = null!;
     public virtual EmploymentType EmploymentType { get; set; } = null!;
     public ICollection<WorkShift> WorkShifts { get; set; } = new List<WorkShift>();

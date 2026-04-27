@@ -7,9 +7,9 @@ using Microsoft.Extensions.Logging;
 
 namespace HotelManagement.Application.Features.Hotels;
 
-public record GetMyHotelsQuery(int Page = 1, int PageSize = 10) : IRequest<PaginatedResult<HotelDto>>;
+public record GetMyHotelsQuery(int Page = 1, int PageSize = 10) : IRequest<PaginatedResult<MyHotelDto>>;
 
-public class GetMyHotelsQueryHandler : IRequestHandler<GetMyHotelsQuery, PaginatedResult<HotelDto>>
+public class GetMyHotelsQueryHandler : IRequestHandler<GetMyHotelsQuery, PaginatedResult<MyHotelDto>>
 {
     private readonly IApplicationDbContext _context;
     private readonly ILogger<GetMyHotelsQueryHandler> _logger;
@@ -25,15 +25,29 @@ public class GetMyHotelsQueryHandler : IRequestHandler<GetMyHotelsQuery, Paginat
         _currentUserService = currentUserService;
     }
 
-    public async Task<PaginatedResult<HotelDto>> Handle(GetMyHotelsQuery request, CancellationToken cancellationToken)
+    public async Task<PaginatedResult<MyHotelDto>> Handle(GetMyHotelsQuery request, CancellationToken cancellationToken)
     {
         var userId = _currentUserService.UserId;
 
         _logger.LogInformation("Запрос списка моих гостиниц. UserId: {UserId}, Страница: {Page}, Размер страницы: {PageSize}",
             userId, request.Page, request.PageSize);
 
-        var query = _context.Hotels
-            .Where(h => h.CreatedById == userId)
+        var query = _context.Employees
+            .Where(e => e.UserId == userId && e.IsActive)
+            .Select(e => new MyHotelDto
+            {
+                Id = e.Hotel.Id,
+                Name = e.Hotel.Name,
+                Address = e.Hotel.Address,
+                Phone = e.Hotel.Phone,
+                Email = e.Hotel.Email,
+                Description = e.Hotel.Description,
+                ImageUrl = e.Hotel.ImageUrl,
+                Position = e.Position,
+                DepartmentId = e.DepartmentId,
+                DepartmentName = e.Department.Name,
+                HireDate = e.HireDate
+            })
             .AsNoTracking();
 
         var totalCount = await query.CountAsync(cancellationToken);
@@ -41,20 +55,10 @@ public class GetMyHotelsQueryHandler : IRequestHandler<GetMyHotelsQuery, Paginat
         var items = await query
             .Skip((request.Page - 1) * request.PageSize)
             .Take(request.PageSize)
-            .Select(h => new HotelDto
-            {
-                Id = h.Id,
-                Name = h.Name,
-                Address = h.Address,
-                Phone = h.Phone,
-                Email = h.Email,
-                Description = h.Description,
-                ImageUrl = h.ImageUrl
-            })
             .ToListAsync(cancellationToken);
 
         _logger.LogInformation("Найдено {Count} моих гостиниц из {TotalCount}", items.Count, totalCount);
 
-        return new PaginatedResult<HotelDto>(items, totalCount, request.Page, request.PageSize);
+        return new PaginatedResult<MyHotelDto>(items, totalCount, request.Page, request.PageSize);
     }
 }

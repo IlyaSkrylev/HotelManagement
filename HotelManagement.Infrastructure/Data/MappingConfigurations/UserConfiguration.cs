@@ -68,5 +68,9 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
 
         builder.Property(x => x.RefreshTokenExpiryTime)
             .HasColumnName("refresh_token_expiry_time");
+        
+        builder.Property(x => x.ResumeUrl)
+            .HasColumnName("resume_url")
+            .HasMaxLength(500);
     }
 }

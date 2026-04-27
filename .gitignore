@@ -361,3 +361,8 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# Uploads folder (user uploaded files)
+**/uploads/
+*/uploads/
+HotelManagement.API/uploads/
