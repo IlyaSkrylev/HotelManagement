@@ -17,7 +17,6 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     public DbSet<UserRole> UserRoles { get; set; }
     public DbSet<Department> Departments { get; set; }
     public DbSet<Employee> Employees { get; set; }
-    public DbSet<EmploymentType> EmploymentTypes { get; set; }
     public DbSet<WorkShift> WorkShifts { get; set; }
     public DbSet<ShiftType> ShiftTypes { get; set; }
     public DbSet<HotelFloor> HotelFloors { get; set; }

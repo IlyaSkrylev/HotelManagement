@@ -12,4 +12,6 @@ public class EmployeeListItemDto
     public long DepartmentId { get; set; }
     public string DepartmentName { get; set; } = string.Empty;
     public DateTimeOffset HireDate { get; set; }
+    public long RoleId { get; set; }
+    public string RoleCode { get; set; } = string.Empty;
 }

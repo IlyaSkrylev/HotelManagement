@@ -15,15 +15,16 @@ public class Employee : IEntity
     public bool IsActive { get; set; } = true;
     public int? Salary { get; set; }
     public int? SalarySupplement { get; set; }
-    public long EmploymentTypeId { get; set; }
+    public long ShiftTypeId { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset UpdatedAt { get; set; }
     public DateTimeOffset ShiftCycleStartDate { get; set; }
+    public bool ShiftCycleStartsWithDay { get; set; } = true;
 
     public virtual User User { get; set; } = null!;
     public virtual Hotel Hotel { get; set; } = null!;
     public virtual Department Department { get; set; } = null!;
-    public virtual EmploymentType EmploymentType { get; set; } = null!;
+    public virtual ShiftType ShiftType { get; set; } = null!;
     public ICollection<WorkShift> WorkShifts { get; set; } = new List<WorkShift>();
     public ICollection<HotelTask> AssignedTasks { get; set; } = new List<HotelTask>();
     public ICollection<HotelTask> CreatedTasks { get; set; } = new List<HotelTask>();

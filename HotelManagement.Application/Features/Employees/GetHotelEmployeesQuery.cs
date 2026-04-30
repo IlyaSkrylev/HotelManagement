@@ -70,7 +70,15 @@ public class GetHotelEmployeesQueryHandler : IRequestHandler<GetHotelEmployeesQu
                 Position = e.Position,
                 DepartmentId = e.DepartmentId,
                 DepartmentName = e.Department != null ? e.Department.Name : string.Empty,
-                HireDate = e.HireDate
+                HireDate = e.HireDate,
+                RoleId = _context.UserHotelRoles
+                    .Where(uhr => uhr.UserId == e.UserId && uhr.HotelId == request.HotelId)
+                    .Select(uhr => uhr.RoleId)
+                    .FirstOrDefault(),
+                RoleCode = _context.UserHotelRoles
+                    .Where(uhr => uhr.UserId == e.UserId && uhr.HotelId == request.HotelId)
+                    .Select(uhr => uhr.Role.Code)
+                    .FirstOrDefault() ?? string.Empty
             })
             .ToListAsync(cancellationToken);
 

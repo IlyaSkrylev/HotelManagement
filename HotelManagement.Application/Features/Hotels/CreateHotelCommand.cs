@@ -63,6 +63,28 @@ public class CreateHotelCommandHandler : IRequestHandler<CreateHotelCommand, Cre
         _context.Hotels.Add(hotel);
         await _context.SaveChangesAsync(cancellationToken);
 
+        var adminRole = await _context.UserRoles
+            .FirstOrDefaultAsync(r => r.Code == "admin", cancellationToken);
+
+        if (adminRole != null)
+        {
+            var userHotelRole = new UserHotelRole
+            {
+                UserId = _currentUserService.UserId,
+                HotelId = hotel.Id,
+                RoleId = adminRole.Id,
+                AssignedAt = DateTimeOffset.UtcNow
+            };
+            _context.UserHotelRoles.Add(userHotelRole);
+            await _context.SaveChangesAsync(cancellationToken);
+            _logger.LogInformation("Добавлена роль Admin для пользователя {UserId} в гостинице {HotelId}",
+                _currentUserService.UserId, hotel.Id);
+        }
+        else
+        {
+            _logger.LogWarning("Роль admin не найдена в таблице user_roles");
+        }
+
         var defaultDepartment = new Department
         {
             Name = "Администрация",
@@ -74,23 +96,32 @@ public class CreateHotelCommandHandler : IRequestHandler<CreateHotelCommand, Cre
         _context.Departments.Add(defaultDepartment);
         await _context.SaveChangesAsync(cancellationToken);
 
-        var employmentTypeId = await _context.EmploymentTypes
+        var shiftTypeId = await _context.ShiftTypes
             .OrderBy(x => x.Id)
             .Select(x => (long?)x.Id)
             .FirstOrDefaultAsync(cancellationToken);
 
-        if (!employmentTypeId.HasValue)
+        if (!shiftTypeId.HasValue)
         {
-            var defaultEmploymentType = new EmploymentType
+            var defaultShiftType = new ShiftType
             {
-                Code = "FULL_TIME",
-                Name = "Полная занятость",
-                Description = "Создано автоматически при создании первой гостиницы"
+                Code = "DAY_NIGHT_2_2",
+                Name = "2/2 день-ночь",
+                Color = "#3B82F6",
+                Description = "Создано автоматически при создании первой гостиницы",
+                TotalCycleDays = 4,
+                WorkingDayShifts = 1,
+                WorkingNightShifts = 1,
+                RestDays = 2,
+                DayShiftStartTime = new TimeOnly(8, 0),
+                DayShiftEndTime = new TimeOnly(20, 0),
+                NightShiftStartTime = new TimeOnly(20, 0),
+                NightShiftEndTime = new TimeOnly(8, 0)
             };
 
-            _context.EmploymentTypes.Add(defaultEmploymentType);
+            _context.ShiftTypes.Add(defaultShiftType);
             await _context.SaveChangesAsync(cancellationToken);
-            employmentTypeId = defaultEmploymentType.Id;
+            shiftTypeId = defaultShiftType.Id;
         }
 
         var employee = new Employee
@@ -101,8 +132,9 @@ public class CreateHotelCommandHandler : IRequestHandler<CreateHotelCommand, Cre
             Position = "Управляющий",
             HireDate = DateTimeOffset.UtcNow,
             IsActive = true,
-            EmploymentTypeId = employmentTypeId.Value,
+            ShiftTypeId = shiftTypeId.Value,
             ShiftCycleStartDate = DateTimeOffset.UtcNow,
+            ShiftCycleStartsWithDay = true,
             CreatedAt = DateTimeOffset.UtcNow,
             UpdatedAt = DateTimeOffset.UtcNow
         };
@@ -110,7 +142,7 @@ public class CreateHotelCommandHandler : IRequestHandler<CreateHotelCommand, Cre
         _context.Employees.Add(employee);
         await _context.SaveChangesAsync(cancellationToken);
 
-        _logger.LogInformation("Гостиница создана с ID: {HotelId}, сотрудник добавлен с ID: {EmployeeId}",
+        _logger.LogInformation("Гостиница создана с ID: {HotelId}, сотрудник добавлен с ID: {EmployeeId}, роль admin добавлена",
             hotel.Id, employee.Id);
 
         return new CreateHotelResponse(hotel.Id, hotel.Name, hotel.ImageUrl);

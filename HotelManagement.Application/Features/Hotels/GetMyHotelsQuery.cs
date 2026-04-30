@@ -32,32 +32,37 @@ public class GetMyHotelsQueryHandler : IRequestHandler<GetMyHotelsQuery, Paginat
         _logger.LogInformation("Запрос списка моих гостиниц. UserId: {UserId}, Страница: {Page}, Размер страницы: {PageSize}",
             userId, request.Page, request.PageSize);
 
-        var query = _context.Employees
-            .Where(e => e.UserId == userId && e.IsActive)
-            .Select(e => new MyHotelDto
+        // Получаем гостиницы через UserHotelRole
+        var query = _context.UserHotelRoles
+            .Include(uhr => uhr.Hotel)
+            .Include(uhr => uhr.Role)
+            .Where(uhr => uhr.UserId == userId && uhr.Hotel != null)
+            .Select(uhr => new MyHotelDto
             {
-                Id = e.Hotel.Id,
-                Name = e.Hotel.Name,
-                Address = e.Hotel.Address,
-                Phone = e.Hotel.Phone,
-                Email = e.Hotel.Email,
-                Description = e.Hotel.Description,
-                ImageUrl = e.Hotel.ImageUrl,
-                Position = e.Position,
-                DepartmentId = e.DepartmentId,
-                DepartmentName = e.Department.Name,
-                HireDate = e.HireDate
+                Id = uhr.Hotel.Id,
+                Name = uhr.Hotel.Name,
+                Address = uhr.Hotel.Address,
+                Phone = uhr.Hotel.Phone,
+                Email = uhr.Hotel.Email,
+                Description = uhr.Hotel.Description,
+                ImageUrl = uhr.Hotel.ImageUrl,
+                RoleId = uhr.RoleId,
+                RoleCode = uhr.Role.Code,
+                RoleName = uhr.Role.Name,
+                AssignedAt = uhr.AssignedAt
             })
+            .Distinct()
             .AsNoTracking();
 
         var totalCount = await query.CountAsync(cancellationToken);
 
         var items = await query
+            .OrderBy(h => h.Name)
             .Skip((request.Page - 1) * request.PageSize)
             .Take(request.PageSize)
             .ToListAsync(cancellationToken);
 
-        _logger.LogInformation("Найдено {Count} моих гостиниц из {TotalCount}", items.Count, totalCount);
+        _logger.LogInformation("Найдено {Count} гостиниц через UserHotelRole из {TotalCount}", items.Count, totalCount);
 
         return new PaginatedResult<MyHotelDto>(items, totalCount, request.Page, request.PageSize);
     }

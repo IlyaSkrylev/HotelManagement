@@ -3,6 +3,7 @@ using System;
 using HotelManagement.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HotelManagement.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260430144408_UpdateShiftTypeCycleAndEmployeeCycleStartFlag")]
+    partial class UpdateShiftTypeCycleAndEmployeeCycleStartFlag
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -94,6 +97,10 @@ namespace HotelManagement.Infrastructure.Migrations
                         .HasColumnType("character varying(10000)")
                         .HasColumnName("dismissal_reason");
 
+                    b.Property<long>("EmploymentTypeId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("employment_type_id");
+
                     b.Property<DateTimeOffset>("HireDate")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("hire_date");
@@ -130,10 +137,6 @@ namespace HotelManagement.Infrastructure.Migrations
                         .HasDefaultValue(true)
                         .HasColumnName("shift_cycle_starts_with_day");
 
-                    b.Property<long>("ShiftTypeId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("shift_type_id");
-
                     b.Property<DateTimeOffset>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
@@ -146,13 +149,47 @@ namespace HotelManagement.Infrastructure.Migrations
 
                     b.HasIndex("DepartmentId");
 
-                    b.HasIndex("HotelId");
+                    b.HasIndex("EmploymentTypeId");
 
-                    b.HasIndex("ShiftTypeId");
+                    b.HasIndex("HotelId");
 
                     b.HasIndex("UserId");
 
                     b.ToTable("employees", (string)null);
+                });
+
+            modelBuilder.Entity("HotelManagement.Domain.Entities.EmploymentType", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("code");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(10000)
+                        .HasColumnType("character varying(10000)")
+                        .HasColumnName("description");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("name");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Code")
+                        .IsUnique();
+
+                    b.ToTable("employment_types", (string)null);
                 });
 
             modelBuilder.Entity("HotelManagement.Domain.Entities.FinancialOperation", b =>
@@ -945,15 +982,15 @@ namespace HotelManagement.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("HotelManagement.Domain.Entities.Hotel", "Hotel")
+                    b.HasOne("HotelManagement.Domain.Entities.EmploymentType", "EmploymentType")
                         .WithMany()
-                        .HasForeignKey("HotelId")
+                        .HasForeignKey("EmploymentTypeId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("HotelManagement.Domain.Entities.ShiftType", "ShiftType")
+                    b.HasOne("HotelManagement.Domain.Entities.Hotel", "Hotel")
                         .WithMany()
-                        .HasForeignKey("ShiftTypeId")
+                        .HasForeignKey("HotelId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -965,9 +1002,9 @@ namespace HotelManagement.Infrastructure.Migrations
 
                     b.Navigation("Department");
 
-                    b.Navigation("Hotel");
+                    b.Navigation("EmploymentType");
 
-                    b.Navigation("ShiftType");
+                    b.Navigation("Hotel");
 
                     b.Navigation("User");
                 });

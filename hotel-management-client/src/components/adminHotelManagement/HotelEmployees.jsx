@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { hotelApi } from '../../api/hotelApi'
 import { getImageUrl, getIconUrl } from '../../index'
 import Pagination from '../Pagination'
+import EmployeeEditModal from './EmployeeEditModal'
 import '../../styles/HotelEmployees.css'
 
 function HotelEmployees({ hotelId }) {
@@ -16,6 +17,10 @@ function HotelEmployees({ hotelId }) {
     const [selectedDepartment, setSelectedDepartment] = useState('all')
     const [departments, setDepartments] = useState([])
     const [isFilterOpen, setIsFilterOpen] = useState(false)
+    const [editModalOpen, setEditModalOpen] = useState(false)
+    const [editingEmployee, setEditingEmployee] = useState(null)
+    const [isApprovedResumeMode, setIsApprovedResumeMode] = useState(false)
+
 
     const [employeesPagination, setEmployeesPagination] = useState({
         currentPage: 1,
@@ -136,6 +141,95 @@ function HotelEmployees({ hotelId }) {
         return deptName
     }
 
+    const handleEditEmployee = (employee) => {
+        setEditingEmployee({
+            id: employee.id,
+            userId: employee.userId,
+            roleId: employee.roleId,  
+            departmentId: employee.departmentId,
+            position: employee.position,
+            salary: employee.salary,
+            salarySupplement: employee.salarySupplement,
+            shiftTypeId: employee.shiftTypeId,
+            workingDayShifts: employee.workingDayShifts,
+            workingNightShifts: employee.workingNightShifts,
+            restDays: employee.restDays,
+            dayShiftStart: employee.dayShiftStart,
+            dayShiftEnd: employee.dayShiftEnd,
+            nightShiftStart: employee.nightShiftStart,
+            nightShiftEnd: employee.nightShiftEnd,
+            shiftCycleStartsWithDay: employee.shiftCycleStartsWithDay,
+            shiftCycleStartDate: employee.shiftCycleStartDate?.split('T')[0]
+        })
+        setIsApprovedResumeMode(false)
+        setEditModalOpen(true)
+    }
+
+    const handleHireFromResume = (user) => {
+        setEditingEmployee({
+            userId: user.userId,
+            position: user.desiredPosition,
+            salary: '',
+            salarySupplement: '',
+            shiftTypeId: '',
+            workingDayShifts: 0,
+            workingNightShifts: 0,
+            restDays: 0,
+            dayShiftStart: '09:00',
+            dayShiftEnd: '18:00',
+            nightShiftStart: '21:00',
+            nightShiftEnd: '06:00',
+            shiftCycleStartsWithDay: true,
+            shiftCycleStartDate: new Date().toISOString().split('T')[0]
+        })
+        setIsApprovedResumeMode(true)
+        setEditModalOpen(true)
+    }
+
+    const handleEmployeeSubmit = async (data) => {
+        if (isApprovedResumeMode) {
+            await hotelApi.hireFromResume(editingEmployee.userId, hotelId, {
+                roleId: data.roleId,
+                departmentId: data.departmentId,
+                position: data.position,
+                salary: data.salary,
+                salarySupplement: data.salarySupplement,
+                shiftTypeId: data.shiftTypeId,
+                workingDayShifts: data.workingDayShifts,
+                workingNightShifts: data.workingNightShifts,
+                restDays: data.restDays,
+                dayShiftStart: data.dayShiftStart,
+                dayShiftEnd: data.dayShiftEnd,
+                nightShiftStart: data.nightShiftStart,
+                nightShiftEnd: data.nightShiftEnd,
+                shiftCycleStartsWithDay: data.shiftCycleStartsWithDay,
+                shiftCycleStartDate: data.shiftCycleStartDate,
+                totalCycleDays: data.totalCycleDays
+            })
+            await loadApprovedUsers(approvedPagination.currentPage)
+        } else {
+            await hotelApi.updateEmployee(editingEmployee.id, {
+                roleId: data.roleId,
+                departmentId: data.departmentId,
+                position: data.position,
+                salary: data.salary,
+                salarySupplement: data.salarySupplement,
+                shiftTypeId: data.shiftTypeId,
+                workingDayShifts: data.workingDayShifts,
+                workingNightShifts: data.workingNightShifts,
+                restDays: data.restDays,
+                dayShiftStart: data.dayShiftStart,
+                dayShiftEnd: data.dayShiftEnd,
+                nightShiftStart: data.nightShiftStart,
+                nightShiftEnd: data.nightShiftEnd,
+                shiftCycleStartsWithDay: data.shiftCycleStartsWithDay,
+                shiftCycleStartDate: data.shiftCycleStartDate,
+                totalCycleDays: data.totalCycleDays
+            })
+            await loadEmployees(employeesPagination.currentPage)
+        }
+    }
+
     if (loading && employees.length === 0 && approvedUsers.length === 0) {
         return <div className="loading">Загрузка...</div>
     }
@@ -245,7 +339,7 @@ function HotelEmployees({ hotelId }) {
                                     </div>
 
                                     <div className="employee-actions">
-                                        <button className="edit-employee-btn">
+                                        <button className="edit-employee-btn" onClick={() => handleEditEmployee(emp)}>
                                             Изменить
                                         </button>
                                     </div>
@@ -310,8 +404,8 @@ function HotelEmployees({ hotelId }) {
                                     </div>
 
                                     <div className="employee-actions">
-                                        <button className="edit-employee-btn">
-                                            Изменить
+                                        <button className="edit-employee-btn" onClick={() => handleHireFromResume(user)}>
+                                            Принять на работу
                                         </button>
                                     </div>
                                 </div>
@@ -328,6 +422,15 @@ function HotelEmployees({ hotelId }) {
                     )}
                 </>
             )}
+
+            <EmployeeEditModal
+                isOpen={editModalOpen}
+                onClose={() => setEditModalOpen(false)}
+                onSubmit={handleEmployeeSubmit}
+                initialData={editingEmployee}
+                isApprovedResume={isApprovedResumeMode}
+                hotelId={hotelId}
+            />
         </div>
     )
 }

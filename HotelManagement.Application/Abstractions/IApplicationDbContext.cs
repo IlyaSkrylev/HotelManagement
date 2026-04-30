@@ -11,7 +11,6 @@ public interface IApplicationDbContext
     DbSet<UserRole> UserRoles { get; }
     DbSet<Department> Departments { get; }
     DbSet<Employee> Employees { get; }
-    DbSet<EmploymentType> EmploymentTypes { get; }
     DbSet<WorkShift> WorkShifts { get; }
     DbSet<ShiftType> ShiftTypes { get; }
     DbSet<HotelFloor> HotelFloors { get; }

@@ -52,8 +52,8 @@ public class EmployeeConfiguration : IEntityTypeConfiguration<Employee>
         builder.Property(x => x.SalarySupplement)
             .HasColumnName("salary_supplement");
 
-        builder.Property(x => x.EmploymentTypeId)
-            .HasColumnName("employment_type_id")
+        builder.Property(x => x.ShiftTypeId)
+            .HasColumnName("shift_type_id")
             .IsRequired();
 
         builder.Property(x => x.CreatedAt)
@@ -66,6 +66,11 @@ public class EmployeeConfiguration : IEntityTypeConfiguration<Employee>
 
         builder.Property(x => x.ShiftCycleStartDate)
             .HasColumnName("shift_cycle_start_date")
+            .IsRequired();
+
+        builder.Property(x => x.ShiftCycleStartsWithDay)
+            .HasColumnName("shift_cycle_starts_with_day")
+            .HasDefaultValue(true)
             .IsRequired();
 
         builder.HasOne(x => x.User)
@@ -83,9 +88,9 @@ public class EmployeeConfiguration : IEntityTypeConfiguration<Employee>
             .HasForeignKey(x => x.DepartmentId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        builder.HasOne(x => x.EmploymentType)
+        builder.HasOne(x => x.ShiftType)
             .WithMany()
-            .HasForeignKey(x => x.EmploymentTypeId)
+            .HasForeignKey(x => x.ShiftTypeId)
             .OnDelete(DeleteBehavior.Restrict);
     }
 }

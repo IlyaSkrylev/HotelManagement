@@ -5,6 +5,9 @@ export const hotelApi = {
     getMyHotels: (page = 1, pageSize = 10) => api.get(`/hotels/myhotels?Page=${page}&PageSize=${pageSize}`),
     getById: (id) => api.get(`/hotels/${id}`),
     getHotelAdminInfo: (hotelId) => api.get(`/hotels/${hotelId}/admin-info`),
+    getUserRoleInHotel: (hotelId) => api.get(`/hotels/${hotelId}/user-role`),
+    hireFromResume: (hotelId, userId, data) => api.post(`/hotels/${hotelId}/hire/${userId}`, data),
+    updateEmployee: (employeeId, data) => api.put(`/employees/${employeeId}`, data),
 
     getEmployees: (hotelId, searchTerm = '', departmentName = '', page = 1, pageSize = 20) => {
         const params = new URLSearchParams()
@@ -12,9 +15,7 @@ export const hotelApi = {
         if (departmentName && departmentName !== 'all') params.append('departmentName', departmentName)
         params.append('page', page)
         params.append('pageSize', pageSize)
-
-        const url = `/hotels/${hotelId}/employees${params.toString() ? `?${params.toString()}` : ''}`
-        return api.get(url)
+        return api.get(`/hotels/${hotelId}/employees${params.toString() ? `?${params.toString()}` : ''}`)
     },
 
     getApprovedResumes: (hotelId, searchTerm = '', page = 1, pageSize = 20) => {
