@@ -60,11 +60,9 @@ namespace HotelManagement.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("HotelId");
-
                     b.HasIndex("ManagerId");
 
-                    b.HasIndex("Name")
+                    b.HasIndex("HotelId", "Name")
                         .IsUnique();
 
                     b.ToTable("departments", (string)null);

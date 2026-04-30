@@ -1,0 +1,302 @@
+.resume-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.resume-modal-content {
+    background: var(--bg-card);
+    border-radius: 24px;
+    width: 520px;
+    max-width: 90%;
+    max-height: 85vh;
+    overflow-y: auto;
+    box-shadow: var(--shadow-hover);
+}
+
+.resume-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+    .resume-modal-header h3 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 600;
+        background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+        background-clip: text;
+        -webkit-background-clip: text;
+        color: transparent;
+    }
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: var(--text-secondary);
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+    .modal-close:hover {
+        background: var(--bg-secondary);
+    }
+
+.resume-modal-body {
+    padding: 24px;
+}
+
+.resume-modal-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin: 0 auto 20px;
+}
+
+    .resume-modal-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+.resume-modal-info h4 {
+    text-align: center;
+    margin-bottom: 24px;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+/* Центрирование сетки с двумя колонками */
+.info-wrapper {
+    display: flex;
+    justify-content: center;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    gap: 12px 16px;
+    text-align: left;
+    width: 100%;
+    max-width: 380px;
+}
+
+.info-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent-primary);
+}
+
+.info-value {
+    font-size: 13px;
+    color: var(--text-primary);
+    word-break: break-word;
+}
+
+/* ========== КРАСИВЫЙ ВЫПАДАЮЩИЙ СПИСОК СТАТУСА ДЛЯ МОДАЛКИ ========== */
+.resume-modal-status {
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-color);
+}
+
+    .resume-modal-status label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        font-size: 13px;
+        color: var(--accent-primary);
+    }
+
+/* Кастомный select для модалки */
+.modal-custom-select {
+    position: relative;
+    width: 100%;
+}
+
+.modal-custom-select-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 14px;
+    background: var(--bg-input);
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--text-primary);
+    width: 100%;
+    height: 44px;
+}
+
+    .modal-custom-select-trigger:hover {
+        border-color: var(--accent-primary);
+    }
+
+.modal-current-status {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.modal-status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.modal-arrow {
+    font-size: 10px;
+    color: var(--text-secondary);
+    transition: transform 0.2s;
+}
+
+.modal-custom-select.open .modal-arrow {
+    transform: rotate(180deg);
+}
+
+/* Выпадающее меню для модалки */
+.modal-status-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    box-shadow: var(--shadow-hover);
+    z-index: 1000;
+    overflow: hidden;
+    animation: modalDropdownFadeIn 0.2s ease;
+}
+
+@keyframes modalDropdownFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.modal-status-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--text-primary);
+    font-size: 14px;
+    font-weight: 500;
+}
+
+    .modal-status-option:hover {
+        background: var(--bg-secondary);
+        padding-left: 18px;
+    }
+
+    .modal-status-option.selected {
+        background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+        color: white;
+    }
+
+.modal-option-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.modal-option-check {
+    margin-left: auto;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+/* Скрываем старый select */
+.resume-modal-status select {
+    display: none;
+}
+
+.resume-modal-footer {
+    display: flex;
+    gap: 16px;
+    padding: 16px 24px;
+    border-top: 1px solid var(--border-color);
+}
+
+    .resume-modal-footer button {
+        flex: 1;
+        padding: 10px;
+        border-radius: 40px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+.cancel-btn {
+    background: transparent;
+    border: 2px solid var(--border-color);
+    color: var(--text-secondary);
+}
+
+    .cancel-btn:hover {
+        background: var(--bg-secondary);
+        border-color: var(--accent-primary);
+        color: var(--accent-primary);
+    }
+
+.save-btn {
+    background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+    color: white;
+    border: none;
+}
+
+    .save-btn:hover:not(:disabled) {
+        transform: translateY(-2px);
+        filter: brightness(1.05);
+    }
+
+    .save-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+.status-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    color: white;
+}

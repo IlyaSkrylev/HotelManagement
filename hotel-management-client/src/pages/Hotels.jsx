@@ -68,7 +68,7 @@ function Hotels() {
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
                         
-                        <img src={searchIconUrl} className="search-icon" />
+                        <img src={searchIconUrl} className="search-icon" alt="search" />
                     </div>
                     {isAuthenticated && (
                         <Link to="/hotels/create" className="create-button">

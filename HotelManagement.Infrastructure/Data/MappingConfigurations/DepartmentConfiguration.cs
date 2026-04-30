@@ -19,7 +19,7 @@ public class DepartmentConfiguration : IEntityTypeConfiguration<Department>
             .HasColumnName("name")
             .IsRequired()
             .HasMaxLength(255);
-        builder.HasIndex(x => x.Name).IsUnique();
+        builder.HasIndex(x => new { x.HotelId, x.Name }).IsUnique();
 
         builder.Property(x => x.Description)
             .HasColumnName("description")

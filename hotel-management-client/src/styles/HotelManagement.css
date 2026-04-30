@@ -176,6 +176,23 @@
     justify-content: flex-start;
 }
 
+.image-edit-group {
+    text-align: center;
+}
+
+    .image-edit-group label {
+        text-align: center;
+    }
+
+    .image-edit-group .file-upload-wrapper {
+        justify-content: center;
+    }
+
+    .image-edit-group .image-preview {
+        margin-left: auto;
+        margin-right: auto;
+    }
+
 .file-upload-label {
     display: inline-flex;
     align-items: center;
@@ -244,6 +261,12 @@
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s;
+}
+
+.centered-submit-btn {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
 }
 
     .submit-btn:hover:not(:disabled) {

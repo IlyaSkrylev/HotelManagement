@@ -34,7 +34,7 @@
 }
 
 .search-input {
-    padding: 10px 16px 10px 40px;
+    padding: 10px 56px 10px 16px;
     border: 2px solid var(--border-color);
     border-radius: 40px;
     background: var(--bg-input);
@@ -52,14 +52,15 @@
 
 .search-icon {
     position: absolute;
-    left: 14px;
+    right: 14px;
     top: 50%;
     transform: translateY(-50%);
     font-size: 16px;
     color: var(--text-muted);
     pointer-events: none;
-    width: 20px;
-    height: 20px;
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
 }
 
 .create-button {

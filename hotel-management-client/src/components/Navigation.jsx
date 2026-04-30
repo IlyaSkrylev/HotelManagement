@@ -31,7 +31,8 @@ function Navigation() {
 
                 <div className="navbar-links">
                     <Link to="/" className="nav-link">Главная</Link>
-                    <Link to="/hotels" className="nav-link">Отели</Link>
+                    <Link to="/hotels" className="nav-link">Гостиницы</Link>
+                    <Link to="/profile" className="nav-link">Профиль</Link>
                 </div>
 
                 <div className="navbar-actions">

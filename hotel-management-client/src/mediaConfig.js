@@ -27,7 +27,11 @@ export const mediaPaths = {
         taskPlanning: `${UPLOADS_PATH}/${MEDIA_CATEGORIES.ICONS}/taskplanning.png`,
         report: `${UPLOADS_PATH}/${MEDIA_CATEGORIES.ICONS}/report.png`,
         photoGallery: `${UPLOADS_PATH}/${MEDIA_CATEGORIES.ICONS}/photogalery.png`,
-        clip: `${UPLOADS_PATH}/${MEDIA_CATEGORIES.ICONS}/clip.png`
+        clip: `${UPLOADS_PATH}/${MEDIA_CATEGORIES.ICONS}/clip.png`,
+        filter: `${UPLOADS_PATH}/${MEDIA_CATEGORIES.ICONS}/filter.png`,
+        bin: `${UPLOADS_PATH}/${MEDIA_CATEGORIES.ICONS}/bin.png`,
+        edit: `${UPLOADS_PATH}/${MEDIA_CATEGORIES.ICONS}/edit.png`,
+        save: `${UPLOADS_PATH}/${MEDIA_CATEGORIES.ICONS}/save.png`,
     }
 }
 
@@ -46,7 +50,11 @@ export const getIconUrl = (iconName) => {
         taskPlanning: mediaPaths.icons.taskPlanning,
         report: mediaPaths.icons.report,
         photoGallery: mediaPaths.icons.photoGallery,
-        clip: mediaPaths.icons.clip
+        clip: mediaPaths.icons.clip,
+        filter: mediaPaths.icons.filter,
+        bin: mediaPaths.icons.bin,
+        edit: mediaPaths.icons.edit,
+        save: mediaPaths.icons.save,
     }
 
     const iconPath = iconMap[iconName]

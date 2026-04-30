@@ -5,6 +5,30 @@ export const hotelApi = {
     getMyHotels: (page = 1, pageSize = 10) => api.get(`/hotels/myhotels?Page=${page}&PageSize=${pageSize}`),
     getById: (id) => api.get(`/hotels/${id}`),
     getHotelAdminInfo: (hotelId) => api.get(`/hotels/${hotelId}/admin-info`),
+
+    getEmployees: (hotelId, searchTerm = '', departmentName = '', page = 1, pageSize = 20) => {
+        const params = new URLSearchParams()
+        if (searchTerm) params.append('searchTerm', searchTerm)
+        if (departmentName && departmentName !== 'all') params.append('departmentName', departmentName)
+        params.append('page', page)
+        params.append('pageSize', pageSize)
+
+        const url = `/hotels/${hotelId}/employees${params.toString() ? `?${params.toString()}` : ''}`
+        return api.get(url)
+    },
+
+    getApprovedResumes: (hotelId, searchTerm = '', page = 1, pageSize = 20) => {
+        const params = new URLSearchParams()
+        if (searchTerm) params.append('searchTerm', searchTerm)
+        params.append('page', page)
+        params.append('pageSize', pageSize)
+
+        const url = `/hotels/${hotelId}/approved-resumes${params.toString() ? `?${params.toString()}` : ''}`
+        return api.get(url)
+    },
+
+    getHotelDepartments: (hotelId) => api.get(`/hotels/${hotelId}/departments`),
+
     create: (data) => {
         const formData = new FormData()
         formData.append('Name', data.name)

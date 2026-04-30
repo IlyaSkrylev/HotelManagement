@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { profileApi } from '../api/profileApi'
 import { hotelApi } from '../api/hotelApi'
+import { resumeApi } from '../api/resumeApi'
 import { getImageUrl, getIconUrl } from '../index'
 import MyHotelCard from '../components/MyHotelCard'
+import MyResumesList from '../components/MyResumesList'
 import '../styles/Profile.css'
 
 function Profile() {
@@ -33,6 +35,8 @@ function Profile() {
     const [resumeFileName, setResumeFileName] = useState('')
     const [resumeUrl, setResumeUrl] = useState(null)
 
+    const [refreshKey, setRefreshKey] = useState(0)
+
     const clipIconUrl = getIconUrl('clip')
 
     useEffect(() => {
@@ -44,6 +48,10 @@ function Profile() {
             loadMyHotels()
         }
     }, [activeTab])
+
+    const refreshResumes = () => {
+        setRefreshKey(prev => prev + 1)
+    }
 
     const loadProfile = async () => {
         try {
@@ -100,17 +108,16 @@ function Profile() {
         setMessage({ text: '', type: '' })
 
         try {
-            const formData = new FormData()
-            formData.append('FirstName', profileForm.firstName)
-            formData.append('LastName', profileForm.lastName)
-            formData.append('Patronymic', profileForm.patronymic)
-            formData.append('Phone', profileForm.phone)
-            if (profileForm.birthDate) {
-                formData.append('BirthDate', profileForm.birthDate)
+            const updateData = {
+                firstName: profileForm.firstName,
+                lastName: profileForm.lastName,
+                patronymic: profileForm.patronymic,
+                phone: profileForm.phone,
+                birthDate: profileForm.birthDate || null,
+                avatar: file
             }
-            formData.append('Avatar', file)
 
-            const response = await profileApi.updateProfile(profileForm)
+            const response = await profileApi.updateProfile(updateData)
             await updateAuthUser(response.data.data)
             setAvatarPreview(URL.createObjectURL(file))
             setMessage({ text: 'Аватар обновлён', type: 'success' })
@@ -455,6 +462,11 @@ function Profile() {
                                     {uploading ? 'Загрузка...' : 'Загрузить резюме'}
                                 </button>
                             )}
+                        </div>
+
+                        <div className="my-resumes-section">
+                            <h3>История подачи резюме</h3>
+                            <MyResumesList key={refreshKey} />
                         </div>
                     </div>
                 )}

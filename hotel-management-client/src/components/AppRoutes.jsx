@@ -10,8 +10,13 @@ import Profile from '../pages/Profile'
 import HotelManagement from '../pages/HotelManagement'
 
 function PrivateRoute({ children }) {
-    const { isAuthenticated } = useAuth()
-    return isAuthenticated ? children : <Navigate to="/login" />
+    const { isAuthenticated, loading } = useAuth()
+
+    if (loading) {
+        return null
+    }
+
+    return isAuthenticated ? children : <Navigate to="/login" replace />
 }
 
 function AppRoutes() {
