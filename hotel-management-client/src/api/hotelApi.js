@@ -6,7 +6,8 @@ export const hotelApi = {
     getById: (id) => api.get(`/hotels/${id}`),
     getHotelAdminInfo: (hotelId) => api.get(`/hotels/${hotelId}/admin-info`),
     getUserRoleInHotel: (hotelId) => api.get(`/hotels/${hotelId}/user-role`),
-    hireFromResume: (hotelId, userId, data) => api.post(`/hotels/${hotelId}/hire/${userId}`, data),
+    hireFromResume: (hotelId, resumeId, data) =>
+        api.post(`/hotels/${hotelId}/hire/${resumeId}`, data),
     updateEmployee: (employeeId, data) => api.put(`/employees/${employeeId}`, data),
 
     getEmployees: (hotelId, searchTerm = '', departmentName = '', page = 1, pageSize = 20) => {

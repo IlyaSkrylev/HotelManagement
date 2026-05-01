@@ -9,8 +9,7 @@ public class MyHotelDto
     public string? Email { get; set; }
     public string? Description { get; set; }
     public string? ImageUrl { get; set; }
-
-    // Информация о роли пользователя в этой гостинице
+    public string? Position { get; set; }
     public long RoleId { get; set; }
     public string RoleCode { get; set; } = string.Empty;
     public string RoleName { get; set; } = string.Empty;

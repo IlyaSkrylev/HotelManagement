@@ -20,7 +20,7 @@ function HotelEmployees({ hotelId }) {
     const [editModalOpen, setEditModalOpen] = useState(false)
     const [editingEmployee, setEditingEmployee] = useState(null)
     const [isApprovedResumeMode, setIsApprovedResumeMode] = useState(false)
-
+    const [error, setError] = useState('')
 
     const [employeesPagination, setEmployeesPagination] = useState({
         currentPage: 1,
@@ -145,7 +145,7 @@ function HotelEmployees({ hotelId }) {
         setEditingEmployee({
             id: employee.id,
             userId: employee.userId,
-            roleId: employee.roleId,  
+            roleId: employee.roleId,
             departmentId: employee.departmentId,
             position: employee.position,
             salary: employee.salary,
@@ -166,8 +166,10 @@ function HotelEmployees({ hotelId }) {
     }
 
     const handleHireFromResume = (user) => {
+        // Сохраняем ID резюме и userId отдельно
         setEditingEmployee({
-            userId: user.userId,
+            resumeId: user.id,        // ID резюме для удаления из списка
+            userId: user.userId,       // ID пользователя для найма
             position: user.desiredPosition,
             salary: '',
             salarySupplement: '',
@@ -188,13 +190,13 @@ function HotelEmployees({ hotelId }) {
 
     const handleEmployeeSubmit = async (data) => {
         if (isApprovedResumeMode) {
-            await hotelApi.hireFromResume(editingEmployee.userId, hotelId, {
+            // Найм сотрудника - передаем hotelId и resumeId (ID резюме)
+            await hotelApi.hireFromResume(hotelId, editingEmployee.resumeId, {
                 roleId: data.roleId,
                 departmentId: data.departmentId,
                 position: data.position,
                 salary: data.salary,
                 salarySupplement: data.salarySupplement,
-                shiftTypeId: data.shiftTypeId,
                 workingDayShifts: data.workingDayShifts,
                 workingNightShifts: data.workingNightShifts,
                 restDays: data.restDays,
@@ -206,27 +208,39 @@ function HotelEmployees({ hotelId }) {
                 shiftCycleStartDate: data.shiftCycleStartDate,
                 totalCycleDays: data.totalCycleDays
             })
-            await loadApprovedUsers(approvedPagination.currentPage)
+
+            // Обновляем списки
+            setEmployeesPagination(prev => ({ ...prev, currentPage: 1 }))
+            await loadEmployees(1)
+            setApprovedPagination(prev => ({ ...prev, currentPage: 1 }))
+            await loadApprovedUsers(1)
+
+            setEditModalOpen(false)
         } else {
-            await hotelApi.updateEmployee(editingEmployee.id, {
-                roleId: data.roleId,
-                departmentId: data.departmentId,
-                position: data.position,
-                salary: data.salary,
-                salarySupplement: data.salarySupplement,
-                shiftTypeId: data.shiftTypeId,
-                workingDayShifts: data.workingDayShifts,
-                workingNightShifts: data.workingNightShifts,
-                restDays: data.restDays,
-                dayShiftStart: data.dayShiftStart,
-                dayShiftEnd: data.dayShiftEnd,
-                nightShiftStart: data.nightShiftStart,
-                nightShiftEnd: data.nightShiftEnd,
-                shiftCycleStartsWithDay: data.shiftCycleStartsWithDay,
-                shiftCycleStartDate: data.shiftCycleStartDate,
-                totalCycleDays: data.totalCycleDays
-            })
-            await loadEmployees(employeesPagination.currentPage)
+            try {
+                await hotelApi.updateEmployee(editingEmployee.id, {
+                    roleId: data.roleId,
+                    departmentId: data.departmentId,
+                    position: data.position,
+                    salary: data.salary,
+                    salarySupplement: data.salarySupplement,
+                    workingDayShifts: data.workingDayShifts,
+                    workingNightShifts: data.workingNightShifts,
+                    restDays: data.restDays,
+                    dayShiftStart: data.dayShiftStart,
+                    dayShiftEnd: data.dayShiftEnd,
+                    nightShiftStart: data.nightShiftStart,
+                    nightShiftEnd: data.nightShiftEnd,
+                    shiftCycleStartsWithDay: data.shiftCycleStartsWithDay,
+                    shiftCycleStartDate: data.shiftCycleStartDate,
+                    totalCycleDays: data.totalCycleDays
+                })
+                await loadEmployees(employeesPagination.currentPage)
+                setEditModalOpen(false)
+            } catch (error) {
+                console.error('Error updating employee:', error)
+                setError(error.response?.data?.message || 'Ошибка при обновлении сотрудника')
+            }
         }
     }
 

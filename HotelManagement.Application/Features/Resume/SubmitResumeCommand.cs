@@ -1,8 +1,10 @@
 ﻿using HotelManagement.Application.Abstractions;
+using HotelManagement.Application.Features.HotelStructure;
 using HotelManagement.Domain.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace HotelManagement.Application.Features.Resume;
 
@@ -22,19 +24,24 @@ public class SubmitResumeCommandHandler : IRequestHandler<SubmitResumeCommand, S
     private readonly IApplicationDbContext _context;
     private readonly ICurrentUserService _currentUserService;
     private readonly IFileStorageService _fileStorageService;
+    private readonly ILogger<SubmitResumeCommandHandler> _logger;
 
     public SubmitResumeCommandHandler(
         IApplicationDbContext context,
         ICurrentUserService currentUserService,
-        IFileStorageService fileStorageService)
+        IFileStorageService fileStorageService,
+        ILogger<SubmitResumeCommandHandler> logger)
     {
         _context = context;
+        _logger = logger;
         _currentUserService = currentUserService;
         _fileStorageService = fileStorageService;
     }
 
     public async Task<SubmitResumeResponse> Handle(SubmitResumeCommand request, CancellationToken cancellationToken)
     {
+        _logger.LogInformation("Подача резюме в гостиницу ID: {HotelId}", request.HotelId);
+
         var user = await _context.Users
             .FirstOrDefaultAsync(u => u.Id == _currentUserService.UserId, cancellationToken);
 
@@ -46,6 +53,16 @@ public class SubmitResumeCommandHandler : IRequestHandler<SubmitResumeCommand, S
 
         if (hotel == null)
             throw new ArgumentException("Гостиница не найдена");
+
+        // Получаем статус "pending" (на рассмотрении) из базы данных
+        var pendingStatus = await _context.ResumeStatuses
+            .FirstOrDefaultAsync(s => s.Code == "pending", cancellationToken);
+
+        if (pendingStatus == null)
+        {
+            _logger.LogError("Статус 'pending' не найден в таблице resume_statuses");
+            throw new Exception("Системная ошибка: статус не найден");
+        }
 
         string? fileUrl = null;
         if (request.UseProfileResume)
@@ -65,13 +82,15 @@ public class SubmitResumeCommandHandler : IRequestHandler<SubmitResumeCommand, S
             Experience = request.Experience,
             Education = request.Education,
             FileUrl = fileUrl,
-            StatusId = 1,
+            StatusId = pendingStatus.Id,  // Используем ID из таблицы статусов
             CreatedAt = DateTimeOffset.UtcNow
         };
 
         _context.Resumes.Add(resume);
         await _context.SaveChangesAsync(cancellationToken);
 
-        return new SubmitResumeResponse(resume.Id, "pending");
+        _logger.LogInformation("Резюме успешно подано, ID: {ResumeId}", resume.Id);
+
+        return new SubmitResumeResponse(resume.Id, pendingStatus.Code);
     }
 }

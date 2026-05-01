@@ -32,7 +32,6 @@ public class GetMyHotelsQueryHandler : IRequestHandler<GetMyHotelsQuery, Paginat
         _logger.LogInformation("Запрос списка моих гостиниц. UserId: {UserId}, Страница: {Page}, Размер страницы: {PageSize}",
             userId, request.Page, request.PageSize);
 
-        // Получаем гостиницы через UserHotelRole
         var query = _context.UserHotelRoles
             .Include(uhr => uhr.Hotel)
             .Include(uhr => uhr.Role)
@@ -49,7 +48,11 @@ public class GetMyHotelsQueryHandler : IRequestHandler<GetMyHotelsQuery, Paginat
                 RoleId = uhr.RoleId,
                 RoleCode = uhr.Role.Code,
                 RoleName = uhr.Role.Name,
-                AssignedAt = uhr.AssignedAt
+                AssignedAt = uhr.AssignedAt,
+                Position = _context.Employees
+                    .Where(e => e.UserId == userId && e.HotelId == uhr.HotelId && e.IsActive)
+                    .Select(e => e.Position)
+                    .FirstOrDefault() ?? string.Empty
             })
             .Distinct()
             .AsNoTracking();

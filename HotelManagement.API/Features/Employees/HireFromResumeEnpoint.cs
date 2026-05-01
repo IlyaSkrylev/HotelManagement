@@ -1,4 +1,6 @@
-﻿using HotelManagement.API.Common;
+﻿// HireFromResumeEndpoint.cs
+using HotelManagement.API.Common;
+using HotelManagement.Application.Abstractions;
 using HotelManagement.Application.DTOs;
 using HotelManagement.Application.Features.Employees;
 using MediatR;
@@ -9,18 +11,25 @@ public class HireFromResumeEndpoint : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapPost("/api/hotels/{hotelId}/hire/{userId}", async (
+        app.MapPost("/api/hotels/{hotelId}/hire/{resumeId}", async (
                 long hotelId,
-                long userId,
+                long resumeId,
                 HireFromResumeRequest request,
                 IMediator mediator,
+                IApplicationDbContext context,
                 ILogger<HireFromResumeEndpoint> logger) =>
         {
-            logger.LogInformation("POST /api/hotels/{HotelId}/hire/{UserId} вызван", hotelId, userId);
+            logger.LogInformation("POST /api/hotels/{HotelId}/hire/{ResumeId} вызван", hotelId, resumeId);
+
+            var resume = await context.Resumes.FindAsync(resumeId);
+            if (resume == null)
+            {
+                return Results.NotFound(BaseResponse.Error("Резюме не найдено"));
+            }
 
             var command = new CreateEmployeeFromResumeCommand(
                 hotelId,
-                userId,
+                resume.UserId,  
                 request.RoleId,
                 request.DepartmentId,
                 request.Position,
@@ -41,7 +50,7 @@ public class HireFromResumeEndpoint : IEndpoint
             return Results.Ok(BaseResponse.Ok(result));
         })
         .WithName("HireFromResume")
-        .WithDescription("Наём сотрудника из одобренного резюме")
+        .WithDescription("Наём сотрудника из одобренного резюме (резюме удаляется)")
         .Produces<BaseResponse>(StatusCodes.Status200OK)
         .RequireAuthorization();
     }

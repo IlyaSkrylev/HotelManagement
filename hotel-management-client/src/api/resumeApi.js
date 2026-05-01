@@ -37,5 +37,7 @@ export const resumeApi = {
         api.put(`/resumes/${resumeId}/status`, {
             resumeId: resumeId,
             statusId: statusId
-        })
+        }),
+
+    deleteResume: (resumeId) => api.delete(`/resumes/${resumeId}`)
 }

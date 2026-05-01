@@ -1,4 +1,5 @@
-﻿using HotelManagement.Application.Abstractions;
+﻿// CreateEmployeeFromResumeCommand.cs - добавьте удаление резюме
+using HotelManagement.Application.Abstractions;
 using HotelManagement.Application.DTOs;
 using HotelManagement.Domain.Entities;
 using MediatR;
@@ -41,8 +42,20 @@ public class CreateEmployeeFromResumeCommandHandler : IRequestHandler<CreateEmpl
     {
         _logger.LogInformation("Найм сотрудника из резюме для отеля ID: {HotelId}, UserId: {UserId}", request.HotelId, request.UserId);
 
+        // 1. Находим резюме
+        var resume = await _context.Resumes
+            .FirstOrDefaultAsync(r => r.UserId == request.UserId && r.HotelId == request.HotelId, cancellationToken);
+
+        if (resume == null)
+        {
+            _logger.LogWarning("Резюме не найдено для UserId {UserId} в отеле {HotelId}", request.UserId, request.HotelId);
+            throw new Exception("Резюме не найдено");
+        }
+
+        // 2. Создаем тип смены
         var shiftType = await CreateOrGetShiftType(request, cancellationToken);
 
+        // 3. Создаем сотрудника
         var employee = new Employee
         {
             UserId = request.UserId,
@@ -54,7 +67,7 @@ public class CreateEmployeeFromResumeCommandHandler : IRequestHandler<CreateEmpl
             Salary = (int?)request.Salary,
             SalarySupplement = (int?)request.SalarySupplement,
             ShiftTypeId = shiftType.Id,
-            ShiftCycleStartDate = request.ShiftCycleStartDate,
+            ShiftCycleStartDate = request.ShiftCycleStartDate.ToUniversalTime(),
             ShiftCycleStartsWithDay = request.ShiftCycleStartsWithDay,
             CreatedAt = DateTimeOffset.UtcNow,
             UpdatedAt = DateTimeOffset.UtcNow
@@ -63,6 +76,7 @@ public class CreateEmployeeFromResumeCommandHandler : IRequestHandler<CreateEmpl
         _context.Employees.Add(employee);
         await _context.SaveChangesAsync(cancellationToken);
 
+        // 4. Создаем роль пользователя в отеле
         var userHotelRole = new UserHotelRole
         {
             UserId = request.UserId,
@@ -74,19 +88,12 @@ public class CreateEmployeeFromResumeCommandHandler : IRequestHandler<CreateEmpl
         _context.UserHotelRoles.Add(userHotelRole);
         await _context.SaveChangesAsync(cancellationToken);
 
-        var resume = await _context.Resumes
-            .FirstOrDefaultAsync(r => r.UserId == request.UserId && r.HotelId == request.HotelId, cancellationToken);
+        // 5. УДАЛЯЕМ РЕЗЮМЕ (вместо изменения статуса!)
+        _context.Resumes.Remove(resume);
+        await _context.SaveChangesAsync(cancellationToken);
 
-        if (resume != null)
-        {
-            var approvedStatus = await _context.ResumeStatuses
-                .FirstOrDefaultAsync(s => s.Code == "APPROVED", cancellationToken);
-            if (approvedStatus != null)
-            {
-                resume.StatusId = approvedStatus.Id;
-                await _context.SaveChangesAsync(cancellationToken);
-            }
-        }
+        _logger.LogInformation("Сотрудник создан и резюме удалено. EmployeeId: {EmployeeId}, ResumeId: {ResumeId}",
+            employee.Id, resume.Id);
 
         return new EmployeeDto
         {
@@ -101,14 +108,32 @@ public class CreateEmployeeFromResumeCommandHandler : IRequestHandler<CreateEmpl
 
     private async Task<ShiftType> CreateOrGetShiftType(CreateEmployeeFromResumeCommand request, CancellationToken cancellationToken)
     {
-        var code = $"CUSTOM_{Guid.NewGuid():N}".Substring(0, 50);
+        var guid = Guid.NewGuid().ToString("N");
+        var code = $"CUSTOM_{guid}";
+
+        if (code.Length > 50)
+        {
+            code = code.Substring(0, 50);
+        }
+
+        var existingCode = await _context.ShiftTypes
+            .AnyAsync(st => st.Code == code, cancellationToken);
+
+        if (existingCode)
+        {
+            code = $"{code}_{DateTime.UtcNow.Ticks}";
+            if (code.Length > 50)
+            {
+                code = code.Substring(0, 50);
+            }
+        }
 
         var shiftType = new ShiftType
         {
             Code = code,
-            Name = $"Индивидуальный график",
+            Name = "Индивидуальный график",
             Color = "#3498db",
-            Description = $"Автоматически созданный график: {request.WorkingDayShifts} дней, {request.WorkingNightShifts} ночей, {request.RestDays} отдыха",
+            Description = $"Рабочих дней: {request.WorkingDayShifts}, ночей: {request.WorkingNightShifts}, отдыха: {request.RestDays}",
             TotalCycleDays = request.TotalCycleDays,
             WorkingDayShifts = request.WorkingDayShifts,
             WorkingNightShifts = request.WorkingNightShifts,

@@ -30,6 +30,9 @@ public class UpdateResumeStatusCommandHandler : IRequestHandler<UpdateResumeStat
 
     public async Task<UpdateResumeStatusResponse> Handle(UpdateResumeStatusCommand request, CancellationToken cancellationToken)
     {
+        _logger.LogInformation("Обновление статуса резюме ID: {ResumeId} на StatusId: {StatusId}",
+            request.ResumeId, request.StatusId);
+
         var resume = await _context.Resumes
             .FirstOrDefaultAsync(r => r.Id == request.ResumeId, cancellationToken);
 
@@ -38,16 +41,31 @@ public class UpdateResumeStatusCommandHandler : IRequestHandler<UpdateResumeStat
             return new UpdateResumeStatusResponse(false, "Резюме не найдено");
         }
 
-        var oldStatusId = resume.StatusId;
+        // Получаем Employee ID текущего пользователя в этом отеле
+        var employee = await _context.Employees
+            .FirstOrDefaultAsync(e => e.UserId == _currentUserService.UserId && e.HotelId == resume.HotelId, cancellationToken);
 
-        resume.StatusId = request.StatusId;
-        resume.ReviewedAt = DateTimeOffset.UtcNow;
-        resume.ReviewedById = _currentUserService.UserId;
+        if (employee == null)
+        {
+            _logger.LogWarning("Сотрудник не найден для UserId: {UserId} в отеле {HotelId}",
+                _currentUserService.UserId, resume.HotelId);
+
+            // Если сотрудник не найден, обновляем только статус, без reviewed_by_id
+            resume.StatusId = request.StatusId;
+            resume.ReviewedAt = DateTimeOffset.UtcNow;
+            // reviewed_by_id оставляем null или существующим
+        }
+        else
+        {
+            resume.StatusId = request.StatusId;
+            resume.ReviewedAt = DateTimeOffset.UtcNow;
+            resume.ReviewedById = employee.Id;
+        }
 
         await _context.SaveChangesAsync(cancellationToken);
 
-        _logger.LogInformation("Статус резюме ID: {ResumeId} изменён с {OldStatusId} на {NewStatusId}",
-            resume.Id, oldStatusId, request.StatusId);
+        _logger.LogInformation("Статус резюме ID: {ResumeId} изменён на {NewStatusId}, reviewed_by: {ReviewedBy}",
+            resume.Id, request.StatusId, employee?.Id);
 
         return new UpdateResumeStatusResponse(true, "Статус успешно обновлён");
     }

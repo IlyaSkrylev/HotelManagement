@@ -171,7 +171,6 @@ function EmployeeEditModal({ isOpen, onClose, onSubmit, initialData, isApprovedR
         }
 
         const selectedRole = userRoles.find(r => r.id == formData.roleId)
-        // Проверяем по code: manager или employee
         const needDept = selectedRole?.code === 'manager' || selectedRole?.code === 'employee'
 
         if (needDept && !formData.departmentId) {
@@ -206,10 +205,23 @@ function EmployeeEditModal({ isOpen, onClose, onSubmit, initialData, isApprovedR
 
         setSubmitting(true)
         try {
+            const shiftCycleStartDate = new Date(formData.shiftCycleStartDate).toISOString();
+
             await onSubmit({
-                ...formData,
-                roleCode: selectedRole?.code,
                 roleId: formData.roleId,
+                departmentId: formData.departmentId || null,
+                position: formData.position,
+                salary: formData.salary ? parseFloat(formData.salary) : null,
+                salarySupplement: formData.salarySupplement ? parseFloat(formData.salarySupplement) : null,
+                workingDayShifts: parseInt(formData.workingDayShifts) || 0,
+                workingNightShifts: parseInt(formData.workingNightShifts) || 0,
+                restDays: parseInt(formData.restDays) || 0,
+                dayShiftStart: formData.dayShiftStart,
+                dayShiftEnd: formData.dayShiftEnd,
+                nightShiftStart: formData.nightShiftStart,
+                nightShiftEnd: formData.nightShiftEnd,
+                shiftCycleStartsWithDay: formData.shiftCycleStartsWithDay,
+                shiftCycleStartDate: shiftCycleStartDate,  
                 totalCycleDays: total
             })
             onClose()
