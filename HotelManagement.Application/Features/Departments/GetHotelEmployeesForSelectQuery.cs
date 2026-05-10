@@ -6,7 +6,10 @@ using Microsoft.Extensions.Logging;
 
 namespace HotelManagement.Application.Features.Departments;
 
-public record GetHotelEmployeesForSelectQuery(long HotelId, string? SearchTerm = null) : IRequest<List<EmployeeForSelectDto>>;
+public record GetHotelEmployeesForSelectQuery(
+    long HotelId,
+    string? SearchTerm = null,
+    string? RoleCode = null) : IRequest<List<EmployeeForSelectDto>>;
 
 public class GetHotelEmployeesForSelectQueryHandler : IRequestHandler<GetHotelEmployeesForSelectQuery, List<EmployeeForSelectDto>>
 {
@@ -21,11 +24,20 @@ public class GetHotelEmployeesForSelectQueryHandler : IRequestHandler<GetHotelEm
 
     public async Task<List<EmployeeForSelectDto>> Handle(GetHotelEmployeesForSelectQuery request, CancellationToken cancellationToken)
     {
-        _logger.LogInformation("Запрос сотрудников для выпадающего списка, HotelId: {HotelId}", request.HotelId);
+        _logger.LogInformation("Запрос сотрудников для выпадающего списка, HotelId: {HotelId}, RoleCode: {RoleCode}",
+            request.HotelId, request.RoleCode);
 
         var query = _context.Employees
             .Include(e => e.User)
             .Where(e => e.HotelId == request.HotelId && e.IsActive);
+
+        if (!string.IsNullOrWhiteSpace(request.RoleCode))
+        {
+            query = query.Where(e => _context.UserHotelRoles
+                .Any(uhr => uhr.UserId == e.UserId &&
+                            uhr.HotelId == request.HotelId &&
+                            uhr.Role.Code == request.RoleCode));
+        }
 
         if (!string.IsNullOrWhiteSpace(request.SearchTerm))
         {
@@ -46,7 +58,11 @@ public class GetHotelEmployeesForSelectQueryHandler : IRequestHandler<GetHotelEm
                 UserId = e.UserId,
                 FullName = e.User.LastName + " " + e.User.FirstName + (e.User.Patronymic != null ? " " + e.User.Patronymic : ""),
                 Position = e.Position,
-                AvatarUrl = e.User.AvatarUrl
+                AvatarUrl = e.User.AvatarUrl,
+                RoleCode = _context.UserHotelRoles
+                    .Where(uhr => uhr.UserId == e.UserId && uhr.HotelId == request.HotelId)
+                    .Select(uhr => uhr.Role.Code)
+                    .FirstOrDefault() ?? string.Empty
             })
             .ToListAsync(cancellationToken);
 

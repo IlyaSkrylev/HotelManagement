@@ -48,9 +48,9 @@ function Departments({ hotelId }) {
         }
     }
 
-    const loadEmployeesForSelect = async (hotelId, search = '') => {
+    const loadEmployeesForSelect = async (hotelId, search = '', roleCode = '') => {
         try {
-            const response = await departmentApi.getEmployeesForSelect(hotelId, search)
+            const response = await departmentApi.getEmployeesForSelect(hotelId, search, roleCode)
             return response.data.data || []
         } catch (error) {
             console.error('Error loading employees:', error)

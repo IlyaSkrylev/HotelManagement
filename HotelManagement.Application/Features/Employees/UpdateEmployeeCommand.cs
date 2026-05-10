@@ -38,10 +38,11 @@ public class UpdateEmployeeCommandHandler : IRequestHandler<UpdateEmployeeComman
 
     public async Task<EmployeeDto> Handle(UpdateEmployeeCommand request, CancellationToken cancellationToken)
     {
-        _logger.LogInformation("Обновление сотрудника ID: {Id}", request.Id);
+        _logger.LogInformation("Обновление сотрудника ID: {Id}, RoleId: {RoleId}", request.Id, request.RoleId);
 
         var employee = await _context.Employees
             .Include(e => e.User)
+            .Include(e => e.ShiftType)
             .FirstOrDefaultAsync(e => e.Id == request.Id, cancellationToken);
 
         if (employee == null)
@@ -49,27 +50,134 @@ public class UpdateEmployeeCommandHandler : IRequestHandler<UpdateEmployeeComman
             throw new Exception("Сотрудник не найден");
         }
 
+        var currentUserHotelRole = await _context.UserHotelRoles
+            .FirstOrDefaultAsync(uhr => uhr.UserId == employee.UserId && uhr.HotelId == employee.HotelId, cancellationToken);
+
+        long? oldRoleId = currentUserHotelRole?.RoleId;
+        var oldRole = oldRoleId.HasValue
+            ? await _context.UserRoles.FirstOrDefaultAsync(r => r.Id == oldRoleId.Value, cancellationToken)
+            : null;
+
+        var newRole = await _context.UserRoles
+            .FirstOrDefaultAsync(r => r.Id == request.RoleId, cancellationToken);
+
+        
+        if (oldRole?.Code == "manager" && newRole?.Code != "manager")
+        {
+            var departmentsWhereManager = await _context.Departments
+                .Where(d => d.ManagerId == employee.Id)
+                .ToListAsync(cancellationToken);
+
+            foreach (var department in departmentsWhereManager)
+            {
+                department.ManagerId = null;
+                department.UpdatedAt = DateTimeOffset.UtcNow;
+                _logger.LogInformation("Обнулён ManagerId в отделе ID: {DepartmentId} при смене роли сотрудника с manager на {NewRole}",
+                    department.Id, newRole?.Code ?? "unknown");
+            }
+        }
+
+        long? finalDepartmentId = request.DepartmentId;
+
+        if (newRole?.Code == "admin")
+        {
+            var adminDepartment = await _context.Departments
+                .FirstOrDefaultAsync(d => d.HotelId == employee.HotelId && d.Name == "Администрация", cancellationToken);
+
+            if (adminDepartment != null)
+            {
+                finalDepartmentId = adminDepartment.Id;
+                _logger.LogInformation("Администратору назначен отдел 'Администрация' ID: {DepartmentId}", adminDepartment.Id);
+            }
+            else
+            {
+                var newAdminDepartment = new Department
+                {
+                    Name = "Администрация",
+                    HotelId = employee.HotelId,
+                    Description = "Отдел администрации гостиницы",
+                    CreatedAt = DateTimeOffset.UtcNow,
+                    UpdatedAt = DateTimeOffset.UtcNow
+                };
+                _context.Departments.Add(newAdminDepartment);
+                await _context.SaveChangesAsync(cancellationToken);
+                finalDepartmentId = newAdminDepartment.Id;
+                _logger.LogInformation("Создан отдел 'Администрация' ID: {DepartmentId}", newAdminDepartment.Id);
+            }
+        }
+        else if ((newRole?.Code == "manager" || newRole?.Code == "employee") && !finalDepartmentId.HasValue)
+        {
+            throw new Exception("Для роли 'Менеджер' или 'Сотрудник' необходимо выбрать отдел");
+        }
+
+        if (finalDepartmentId.HasValue && employee.DepartmentId != finalDepartmentId.Value)
+        {
+            var departmentExists = await _context.Departments
+                .AnyAsync(d => d.Id == finalDepartmentId.Value, cancellationToken);
+
+            if (!departmentExists)
+            {
+                throw new Exception($"Отдел с ID {finalDepartmentId.Value} не найден");
+            }
+
+            employee.DepartmentId = finalDepartmentId.Value;
+            _logger.LogInformation("Отдел сотрудника изменен на ID: {DepartmentId}", finalDepartmentId.Value);
+        }
+
         employee.Position = request.Position;
-        employee.DepartmentId = request.DepartmentId ?? 0;
         employee.Salary = (int?)request.Salary;
         employee.SalarySupplement = (int?)request.SalarySupplement;
+        employee.ShiftCycleStartDate = request.ShiftCycleStartDate.ToUniversalTime();
+        employee.ShiftCycleStartsWithDay = request.ShiftCycleStartsWithDay;
         employee.UpdatedAt = DateTimeOffset.UtcNow;
 
-        var shiftType = await CreateOrUpdateShiftType(employee, request, cancellationToken);
-        employee.ShiftTypeId = shiftType.Id;
-        employee.ShiftCycleStartDate = request.ShiftCycleStartDate;
-        employee.ShiftCycleStartsWithDay = request.ShiftCycleStartsWithDay;
+        if (employee.ShiftType != null)
+        {
+            employee.ShiftType.WorkingDayShifts = request.WorkingDayShifts;
+            employee.ShiftType.WorkingNightShifts = request.WorkingNightShifts;
+            employee.ShiftType.RestDays = request.RestDays;
+            employee.ShiftType.TotalCycleDays = request.TotalCycleDays;
+            employee.ShiftType.DayShiftStartTime = request.DayShiftStart;
+            employee.ShiftType.DayShiftEndTime = request.DayShiftEnd;
+            employee.ShiftType.NightShiftStartTime = request.NightShiftStart;
+            employee.ShiftType.NightShiftEndTime = request.NightShiftEnd;
+        }
+        else
+        {
+            var guid = Guid.NewGuid().ToString("N");
+            var code = $"CUSTOM_{guid}";
+            if (code.Length > 50) code = code.Substring(0, 50);
+
+            var newShiftType = new ShiftType
+            {
+                Code = code,
+                Name = "Индивидуальный график",
+                Color = "#3498db",
+                Description = $"Рабочих дней: {request.WorkingDayShifts}, ночей: {request.WorkingNightShifts}, отдыха: {request.RestDays}",
+                TotalCycleDays = request.TotalCycleDays,
+                WorkingDayShifts = request.WorkingDayShifts,
+                WorkingNightShifts = request.WorkingNightShifts,
+                RestDays = request.RestDays,
+                DayShiftStartTime = request.DayShiftStart,
+                DayShiftEndTime = request.DayShiftEnd,
+                NightShiftStartTime = request.NightShiftStart,
+                NightShiftEndTime = request.NightShiftEnd
+            };
+            _context.ShiftTypes.Add(newShiftType);
+            await _context.SaveChangesAsync(cancellationToken);
+            employee.ShiftTypeId = newShiftType.Id;
+        }
 
         await _context.SaveChangesAsync(cancellationToken);
 
-        var userHotelRole = await _context.UserHotelRoles
-            .FirstOrDefaultAsync(uhr => uhr.UserId == employee.UserId && uhr.HotelId == employee.HotelId, cancellationToken);
-
-        if (userHotelRole != null)
+        if (currentUserHotelRole != null)
         {
-            userHotelRole.RoleId = request.RoleId;
+            currentUserHotelRole.RoleId = request.RoleId;
             await _context.SaveChangesAsync(cancellationToken);
         }
+
+        _logger.LogInformation("Сотрудник ID: {Id} успешно обновлен. DepartmentId: {DepartmentId}, RoleId: {RoleId}",
+            request.Id, employee.DepartmentId, request.RoleId);
 
         return new EmployeeDto
         {
@@ -80,48 +188,5 @@ public class UpdateEmployeeCommandHandler : IRequestHandler<UpdateEmployeeComman
             IsActive = employee.IsActive,
             HireDate = employee.HireDate
         };
-    }
-
-    private async Task<ShiftType> CreateOrUpdateShiftType(Employee employee, UpdateEmployeeCommand request, CancellationToken cancellationToken)
-    {
-        var existingShiftType = await _context.ShiftTypes
-            .FirstOrDefaultAsync(st => st.Id == employee.ShiftTypeId, cancellationToken);
-
-        if (existingShiftType != null)
-        {
-            existingShiftType.WorkingDayShifts = request.WorkingDayShifts;
-            existingShiftType.WorkingNightShifts = request.WorkingNightShifts;
-            existingShiftType.RestDays = request.RestDays;
-            existingShiftType.TotalCycleDays = request.TotalCycleDays;
-            existingShiftType.DayShiftStartTime = request.DayShiftStart;
-            existingShiftType.DayShiftEndTime = request.DayShiftEnd;
-            existingShiftType.NightShiftStartTime = request.NightShiftStart;
-            existingShiftType.NightShiftEndTime = request.NightShiftEnd;
-
-            await _context.SaveChangesAsync(cancellationToken);
-            return existingShiftType;
-        }
-
-        var code = $"CUSTOM_{Guid.NewGuid():N}".Substring(0, 50);
-        var newShiftType = new ShiftType
-        {
-            Code = code,
-            Name = $"Индивидуальный график",
-            Color = "#3498db",
-            Description = $"Автоматически созданный график",
-            TotalCycleDays = request.TotalCycleDays,
-            WorkingDayShifts = request.WorkingDayShifts,
-            WorkingNightShifts = request.WorkingNightShifts,
-            RestDays = request.RestDays,
-            DayShiftStartTime = request.DayShiftStart,
-            DayShiftEndTime = request.DayShiftEnd,
-            NightShiftStartTime = request.NightShiftStart,
-            NightShiftEndTime = request.NightShiftEnd
-        };
-
-        _context.ShiftTypes.Add(newShiftType);
-        await _context.SaveChangesAsync(cancellationToken);
-
-        return newShiftType;
     }
 }

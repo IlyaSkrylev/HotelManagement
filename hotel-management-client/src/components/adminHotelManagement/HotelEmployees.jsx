@@ -3,26 +3,46 @@ import { hotelApi } from '../../api/hotelApi'
 import { getImageUrl, getIconUrl } from '../../index'
 import Pagination from '../Pagination'
 import EmployeeEditModal from './EmployeeEditModal'
+import EmployeeViewModal from './EmployeeViewModal'
+import FireEmployeeModal from './FireEmployeeModal'
 import '../../styles/HotelEmployees.css'
 
-function HotelEmployees({ hotelId }) {
+function HotelEmployees({ hotelId, userRole, currentUserDepartmentId, currentUserDepartmentName }) {
     const [employees, setEmployees] = useState([])
+    const [archivedEmployees, setArchivedEmployees] = useState([])
     const [approvedUsers, setApprovedUsers] = useState([])
     const [activeList, setActiveList] = useState('employees')
+    const [showArchived, setShowArchived] = useState(false)
     const [loading, setLoading] = useState(true)
     const [searchTerm, setSearchTerm] = useState('')
     const [searchInput, setSearchInput] = useState('')
+    const [archivedSearchTerm, setArchivedSearchTerm] = useState('')
+    const [archivedSearchInput, setArchivedSearchInput] = useState('')
     const [approvedSearchTerm, setApprovedSearchTerm] = useState('')
     const [approvedSearchInput, setApprovedSearchInput] = useState('')
     const [selectedDepartment, setSelectedDepartment] = useState('all')
     const [departments, setDepartments] = useState([])
     const [isFilterOpen, setIsFilterOpen] = useState(false)
     const [editModalOpen, setEditModalOpen] = useState(false)
+    const [viewModalOpen, setViewModalOpen] = useState(false)
     const [editingEmployee, setEditingEmployee] = useState(null)
+    const [viewingEmployee, setViewingEmployee] = useState(null)
     const [isApprovedResumeMode, setIsApprovedResumeMode] = useState(false)
+    const [fireModalOpen, setFireModalOpen] = useState(false)
+    const [employeeToFire, setEmployeeToFire] = useState(null)
     const [error, setError] = useState('')
 
+    const isManager = userRole === 'manager'
+    const isAdmin = userRole === 'admin'
+
     const [employeesPagination, setEmployeesPagination] = useState({
+        currentPage: 1,
+        pageSize: 20,
+        totalCount: 0,
+        totalPages: 0
+    })
+
+    const [archivedPagination, setArchivedPagination] = useState({
         currentPage: 1,
         pageSize: 20,
         totalCount: 0,
@@ -40,8 +60,13 @@ function HotelEmployees({ hotelId }) {
     const filterIconUrl = getIconUrl('filter')
 
     useEffect(() => {
-        if (hotelId) {
+        if (hotelId && isAdmin) {
             loadDepartments()
+        }
+    }, [hotelId, isAdmin])
+
+    useEffect(() => {
+        if (hotelId) {
             loadApprovedUsers(1, true)
         }
     }, [hotelId])
@@ -56,6 +81,14 @@ function HotelEmployees({ hotelId }) {
 
     useEffect(() => {
         const timer = setTimeout(() => {
+            setArchivedSearchTerm(archivedSearchInput)
+            setArchivedPagination(prev => ({ ...prev, currentPage: 1 }))
+        }, 500)
+        return () => clearTimeout(timer)
+    }, [archivedSearchInput])
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
             setApprovedSearchTerm(approvedSearchInput)
             setApprovedPagination(prev => ({ ...prev, currentPage: 1 }))
         }, 500)
@@ -63,10 +96,12 @@ function HotelEmployees({ hotelId }) {
     }, [approvedSearchInput])
 
     useEffect(() => {
-        if (activeList === 'employees' && hotelId) {
-            loadEmployees(1)
+        if (activeList === 'employees' && hotelId && !showArchived) {
+            loadEmployees(employeesPagination.currentPage)
+        } else if (activeList === 'employees' && hotelId && showArchived && isAdmin) {
+            loadArchivedEmployees(archivedPagination.currentPage)
         }
-    }, [hotelId, activeList, searchTerm, selectedDepartment])
+    }, [hotelId, activeList, searchTerm, selectedDepartment, showArchived, archivedSearchTerm])
 
     useEffect(() => {
         if (activeList === 'approved' && hotelId) {
@@ -88,7 +123,8 @@ function HotelEmployees({ hotelId }) {
     const loadEmployees = async (page) => {
         setLoading(true)
         try {
-            const response = await hotelApi.getEmployees(hotelId, searchTerm, selectedDepartment, page, 20)
+            const departmentParam = isManager ? currentUserDepartmentName : (selectedDepartment === 'all' ? '' : selectedDepartment)
+            const response = await hotelApi.getEmployees(hotelId, searchTerm, departmentParam, false, page, 20)
             const data = response.data.data || response.data
             setEmployees(data.items || [])
             setEmployeesPagination({
@@ -99,6 +135,26 @@ function HotelEmployees({ hotelId }) {
             })
         } catch (error) {
             console.error('Error loading employees:', error)
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    const loadArchivedEmployees = async (page) => {
+        setLoading(true)
+        try {
+            const departmentParam = selectedDepartment === 'all' ? '' : selectedDepartment
+            const response = await hotelApi.getEmployees(hotelId, archivedSearchTerm, departmentParam, true, page, 20)
+            const data = response.data.data || response.data
+            setArchivedEmployees(data.items || [])
+            setArchivedPagination({
+                currentPage: data.page,
+                pageSize: data.pageSize,
+                totalCount: data.totalCount,
+                totalPages: data.totalPages
+            })
+        } catch (error) {
+            console.error('Error loading archived employees:', error)
         } finally {
             setLoading(false)
         }
@@ -132,6 +188,11 @@ function HotelEmployees({ hotelId }) {
         window.scrollTo({ top: 0, behavior: 'smooth' })
     }
 
+    const handleArchivedPageChange = (page) => {
+        loadArchivedEmployees(page)
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+
     const handleApprovedPageChange = (page) => {
         loadApprovedUsers(page)
         window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -142,34 +203,24 @@ function HotelEmployees({ hotelId }) {
     }
 
     const handleEditEmployee = (employee) => {
-        setEditingEmployee({
-            id: employee.id,
-            userId: employee.userId,
-            roleId: employee.roleId,
-            departmentId: employee.departmentId,
-            position: employee.position,
-            salary: employee.salary,
-            salarySupplement: employee.salarySupplement,
-            shiftTypeId: employee.shiftTypeId,
-            workingDayShifts: employee.workingDayShifts,
-            workingNightShifts: employee.workingNightShifts,
-            restDays: employee.restDays,
-            dayShiftStart: employee.dayShiftStart,
-            dayShiftEnd: employee.dayShiftEnd,
-            nightShiftStart: employee.nightShiftStart,
-            nightShiftEnd: employee.nightShiftEnd,
-            shiftCycleStartsWithDay: employee.shiftCycleStartsWithDay,
-            shiftCycleStartDate: employee.shiftCycleStartDate?.split('T')[0]
-        })
-        setIsApprovedResumeMode(false)
+        setEditingEmployee(employee)
         setEditModalOpen(true)
     }
 
+    const handleViewEmployee = (employee) => {
+        setViewingEmployee(employee)
+        setViewModalOpen(true)
+    }
+
+    const handleFireEmployee = (employee) => {
+        setEmployeeToFire(employee)
+        setFireModalOpen(true)
+    }
+
     const handleHireFromResume = (user) => {
-        // Сохраняем ID резюме и userId отдельно
         setEditingEmployee({
-            resumeId: user.id,        // ID резюме для удаления из списка
-            userId: user.userId,       // ID пользователя для найма
+            resumeId: user.id,
+            userId: user.userId,
             position: user.desiredPosition,
             salary: '',
             salarySupplement: '',
@@ -182,7 +233,9 @@ function HotelEmployees({ hotelId }) {
             nightShiftStart: '21:00',
             nightShiftEnd: '06:00',
             shiftCycleStartsWithDay: true,
-            shiftCycleStartDate: new Date().toISOString().split('T')[0]
+            shiftCycleStartDate: new Date().toISOString().split('T')[0],
+            departmentId: null,
+            roleId: null
         })
         setIsApprovedResumeMode(true)
         setEditModalOpen(true)
@@ -190,51 +243,57 @@ function HotelEmployees({ hotelId }) {
 
     const handleEmployeeSubmit = async (data) => {
         if (isApprovedResumeMode) {
-            // Найм сотрудника - передаем hotelId и resumeId (ID резюме)
-            await hotelApi.hireFromResume(hotelId, editingEmployee.resumeId, {
-                roleId: data.roleId,
-                departmentId: data.departmentId,
-                position: data.position,
-                salary: data.salary,
-                salarySupplement: data.salarySupplement,
-                workingDayShifts: data.workingDayShifts,
-                workingNightShifts: data.workingNightShifts,
-                restDays: data.restDays,
-                dayShiftStart: data.dayShiftStart,
-                dayShiftEnd: data.dayShiftEnd,
-                nightShiftStart: data.nightShiftStart,
-                nightShiftEnd: data.nightShiftEnd,
-                shiftCycleStartsWithDay: data.shiftCycleStartsWithDay,
-                shiftCycleStartDate: data.shiftCycleStartDate,
-                totalCycleDays: data.totalCycleDays
-            })
-
-            // Обновляем списки
-            setEmployeesPagination(prev => ({ ...prev, currentPage: 1 }))
-            await loadEmployees(1)
-            setApprovedPagination(prev => ({ ...prev, currentPage: 1 }))
-            await loadApprovedUsers(1)
-
-            setEditModalOpen(false)
-        } else {
             try {
-                await hotelApi.updateEmployee(editingEmployee.id, {
+                await hotelApi.hireFromResume(hotelId, editingEmployee.resumeId, {
                     roleId: data.roleId,
                     departmentId: data.departmentId,
                     position: data.position,
                     salary: data.salary,
                     salarySupplement: data.salarySupplement,
-                    workingDayShifts: data.workingDayShifts,
-                    workingNightShifts: data.workingNightShifts,
-                    restDays: data.restDays,
-                    dayShiftStart: data.dayShiftStart,
-                    dayShiftEnd: data.dayShiftEnd,
-                    nightShiftStart: data.nightShiftStart,
-                    nightShiftEnd: data.nightShiftEnd,
+                    workingDayShifts: data.workingDayShifts || 0,
+                    workingNightShifts: data.workingNightShifts || 0,
+                    restDays: data.restDays || 0,
+                    dayShiftStart: data.dayShiftStart || '09:00',
+                    dayShiftEnd: data.dayShiftEnd || '18:00',
+                    nightShiftStart: data.nightShiftStart || '21:00',
+                    nightShiftEnd: data.nightShiftEnd || '06:00',
                     shiftCycleStartsWithDay: data.shiftCycleStartsWithDay,
                     shiftCycleStartDate: data.shiftCycleStartDate,
-                    totalCycleDays: data.totalCycleDays
+                    totalCycleDays: data.totalCycleDays || 0
                 })
+
+                setEmployeesPagination(prev => ({ ...prev, currentPage: 1 }))
+                await loadEmployees(1)
+                setApprovedPagination(prev => ({ ...prev, currentPage: 1 }))
+                await loadApprovedUsers(1)
+                setIsApprovedResumeMode(false)
+                setEditingEmployee(null)
+                setEditModalOpen(false)
+            } catch (error) {
+                console.error('Error hiring employee:', error)
+                setError(error.response?.data?.message || 'Ошибка при найме сотрудника')
+            }
+        } else {
+            try {
+                const updateData = {
+                    roleId: data.roleId,
+                    departmentId: data.departmentId,
+                    position: data.position,
+                    salary: data.salary,
+                    salarySupplement: data.salarySupplement,
+                    workingDayShifts: data.workingDayShifts || 0,
+                    workingNightShifts: data.workingNightShifts || 0,
+                    restDays: data.restDays || 0,
+                    dayShiftStart: data.dayShiftStart || '09:00',
+                    dayShiftEnd: data.dayShiftEnd || '18:00',
+                    nightShiftStart: data.nightShiftStart || '21:00',
+                    nightShiftEnd: data.nightShiftEnd || '06:00',
+                    shiftCycleStartsWithDay: data.shiftCycleStartsWithDay,
+                    shiftCycleStartDate: data.shiftCycleStartDate,
+                    totalCycleDays: data.totalCycleDays || 0
+                }
+
+                await hotelApi.updateEmployee(editingEmployee.id, updateData)
                 await loadEmployees(employeesPagination.currentPage)
                 setEditModalOpen(false)
             } catch (error) {
@@ -244,14 +303,29 @@ function HotelEmployees({ hotelId }) {
         }
     }
 
-    if (loading && employees.length === 0 && approvedUsers.length === 0) {
+    const confirmFireEmployee = async (reason) => {
+        try {
+            await hotelApi.fireEmployee(employeeToFire.id, reason)
+            await loadEmployees(employeesPagination.currentPage)
+            if (isAdmin && showArchived) {
+                await loadArchivedEmployees(archivedPagination.currentPage)
+            }
+            setFireModalOpen(false)
+            setEmployeeToFire(null)
+        } catch (error) {
+            console.error('Error firing employee:', error)
+            throw error
+        }
+    }
+
+    if (loading && employees.length === 0 && archivedEmployees.length === 0 && approvedUsers.length === 0) {
         return <div className="loading">Загрузка...</div>
     }
 
     return (
         <div className="hotel-employees">
             <div className="employees-header">
-                <h2>Сотрудники и кандидаты</h2>
+                <h2>Сотрудники {isManager && currentUserDepartmentName ? `отдела ${currentUserDepartmentName}` : ''}</h2>
             </div>
 
             <div className="employees-tabs">
@@ -273,63 +347,88 @@ function HotelEmployees({ hotelId }) {
 
             {activeList === 'employees' && (
                 <>
+                    {isAdmin && (
+                        <div className="employees-archive-toggle">
+                            <button
+                                className={`archive-toggle-btn ${!showArchived ? 'active' : ''}`}
+                                onClick={() => {
+                                    setShowArchived(false)
+                                    setEmployeesPagination(prev => ({ ...prev, currentPage: 1 }))
+                                }}
+                            >
+                                Активные сотрудники
+                            </button>
+                            <button
+                                className={`archive-toggle-btn ${showArchived ? 'active' : ''}`}
+                                onClick={() => {
+                                    setShowArchived(true)
+                                    setArchivedPagination(prev => ({ ...prev, currentPage: 1 }))
+                                }}
+                            >
+                                Архив
+                            </button>
+                        </div>
+                    )}
+
                     <div className="employees-filters">
                         <div className="search-wrapper">
                             <input
                                 type="text"
                                 placeholder="Поиск по ФИО..."
-                                value={searchInput}
-                                onChange={(e) => setSearchInput(e.target.value)}
+                                value={showArchived ? archivedSearchInput : searchInput}
+                                onChange={(e) => showArchived ? setArchivedSearchInput(e.target.value) : setSearchInput(e.target.value)}
                                 className="search-input"
                             />
                         </div>
 
-                        <div className="filter-dropdown">
-                            <button
-                                className="filter-trigger"
-                                onClick={() => setIsFilterOpen(!isFilterOpen)}
-                            >
-                                {filterIconUrl && <img src={filterIconUrl} alt="filter" className="filter-icon" />}
-                                <span>{selectedDepartment === 'all' ? 'Все отделы' : getDepartmentDisplayName(selectedDepartment)}</span>
-                                <span className="filter-arrow">{isFilterOpen ? '▲' : '▼'}</span>
-                            </button>
+                        {isAdmin && !showArchived && (
+                            <div className="filter-dropdown">
+                                <button
+                                    className="filter-trigger"
+                                    onClick={() => setIsFilterOpen(!isFilterOpen)}
+                                >
+                                    {filterIconUrl && <img src={filterIconUrl} alt="filter" className="filter-icon" />}
+                                    <span>{selectedDepartment === 'all' ? 'Все отделы' : getDepartmentDisplayName(selectedDepartment)}</span>
+                                    <span className="filter-arrow">{isFilterOpen ? '▲' : '▼'}</span>
+                                </button>
 
-                            {isFilterOpen && (
-                                <div className="filter-menu">
-                                    <div
-                                        className={`filter-option ${selectedDepartment === 'all' ? 'active' : ''}`}
-                                        onClick={() => {
-                                            setSelectedDepartment('all')
-                                            setIsFilterOpen(false)
-                                        }}
-                                    >
-                                        Все отделы
-                                    </div>
-                                    {departments.map(dept => (
+                                {isFilterOpen && (
+                                    <div className="filter-menu">
                                         <div
-                                            key={dept}
-                                            className={`filter-option ${selectedDepartment === dept ? 'active' : ''}`}
+                                            className={`filter-option ${selectedDepartment === 'all' ? 'active' : ''}`}
                                             onClick={() => {
-                                                setSelectedDepartment(dept)
+                                                setSelectedDepartment('all')
                                                 setIsFilterOpen(false)
                                             }}
                                         >
-                                            {dept}
+                                            Все отделы
                                         </div>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
+                                        {departments.map(dept => (
+                                            <div
+                                                key={dept}
+                                                className={`filter-option ${selectedDepartment === dept ? 'active' : ''}`}
+                                                onClick={() => {
+                                                    setSelectedDepartment(dept)
+                                                    setIsFilterOpen(false)
+                                                }}
+                                            >
+                                                {dept}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        )}
                     </div>
 
                     <div className="employees-list">
-                        {employees.length === 0 ? (
-                            <div className="no-data">Нет сотрудников</div>
+                        {(showArchived ? archivedEmployees : employees).length === 0 ? (
+                            <div className="no-data">{showArchived ? 'Нет уволенных сотрудников' : 'Нет сотрудников'}</div>
                         ) : (
-                            employees.map((emp, index) => (
+                            (showArchived ? archivedEmployees : employees).map((emp, index) => (
                                 <div key={emp.id} className="employee-card">
                                     <div className="employee-number">
-                                        {(employeesPagination.currentPage - 1) * employeesPagination.pageSize + index + 1}
+                                        {((showArchived ? archivedPagination.currentPage : employeesPagination.currentPage) - 1) * 20 + index + 1}
                                     </div>
 
                                     <div className="employee-avatar">
@@ -350,23 +449,40 @@ function HotelEmployees({ hotelId }) {
                                             <span className="detail-label">Должность:</span>
                                             <span>{emp.position}</span>
                                         </div>
+                                        {showArchived && emp.dismissalDate && (
+                                            <div className="employee-dismissal-date">
+                                                <span className="detail-label">Дата увольнения:</span>
+                                                <span>{new Date(emp.dismissalDate).toLocaleDateString('ru-RU')}</span>
+                                            </div>
+                                        )}
                                     </div>
 
                                     <div className="employee-actions">
-                                        <button className="edit-employee-btn" onClick={() => handleEditEmployee(emp)}>
-                                            Изменить
-                                        </button>
+                                        {showArchived ? (
+                                            <button className="view-employee-btn" onClick={() => handleViewEmployee(emp)}>
+                                                Просмотр
+                                            </button>
+                                        ) : (
+                                            <>
+                                                <button className="edit-employee-btn" onClick={() => handleEditEmployee(emp)}>
+                                                    Изменить
+                                                </button>
+                                                <button className="fire-employee-btn" onClick={() => handleFireEmployee(emp)}>
+                                                    Уволить
+                                                </button>
+                                            </>
+                                        )}
                                     </div>
                                 </div>
                             ))
                         )}
                     </div>
 
-                    {employeesPagination.totalPages > 1 && (
+                    {(showArchived ? archivedPagination.totalPages : employeesPagination.totalPages) > 1 && (
                         <Pagination
-                            currentPage={employeesPagination.currentPage}
-                            totalPages={employeesPagination.totalPages}
-                            onPageChange={handleEmployeesPageChange}
+                            currentPage={showArchived ? archivedPagination.currentPage : employeesPagination.currentPage}
+                            totalPages={showArchived ? archivedPagination.totalPages : employeesPagination.totalPages}
+                            onPageChange={showArchived ? handleArchivedPageChange : handleEmployeesPageChange}
                         />
                     )}
                 </>
@@ -393,7 +509,7 @@ function HotelEmployees({ hotelId }) {
                             approvedUsers.map((user, index) => (
                                 <div key={user.id} className="employee-card">
                                     <div className="employee-number">
-                                        {(approvedPagination.currentPage - 1) * approvedPagination.pageSize + index + 1}
+                                        {(approvedPagination.currentPage - 1) * 20 + index + 1}
                                     </div>
 
                                     <div className="employee-avatar">
@@ -444,6 +560,27 @@ function HotelEmployees({ hotelId }) {
                 initialData={editingEmployee}
                 isApprovedResume={isApprovedResumeMode}
                 hotelId={hotelId}
+                userRole={userRole}
+                currentUserDepartmentId={currentUserDepartmentId}
+                currentUserDepartmentName={currentUserDepartmentName}
+            />
+
+            {viewModalOpen && viewingEmployee && (
+                <EmployeeViewModal
+                    isOpen={viewModalOpen}
+                    onClose={() => setViewModalOpen(false)}
+                    employee={viewingEmployee}
+                />
+            )}
+
+            <FireEmployeeModal
+                isOpen={fireModalOpen}
+                onClose={() => {
+                    setFireModalOpen(false)
+                    setEmployeeToFire(null)
+                }}
+                onConfirm={confirmFireEmployee}
+                employeeName={employeeToFire ? `${employeeToFire.lastName} ${employeeToFire.firstName}` : ''}
             />
         </div>
     )

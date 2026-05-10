@@ -6,14 +6,18 @@ export const hotelApi = {
     getById: (id) => api.get(`/hotels/${id}`),
     getHotelAdminInfo: (hotelId) => api.get(`/hotels/${hotelId}/admin-info`),
     getUserRoleInHotel: (hotelId) => api.get(`/hotels/${hotelId}/user-role`),
+    getCurrentUserEmployeeInfo: (hotelId) => api.get(`/hotels/${hotelId}/current-employee-info`),
     hireFromResume: (hotelId, resumeId, data) =>
         api.post(`/hotels/${hotelId}/hire/${resumeId}`, data),
+    fireEmployee: (employeeId, dismissalReason) =>
+        api.delete(`/employees/${employeeId}?dismissalReason=${encodeURIComponent(dismissalReason)}`),
     updateEmployee: (employeeId, data) => api.put(`/employees/${employeeId}`, data),
 
-    getEmployees: (hotelId, searchTerm = '', departmentName = '', page = 1, pageSize = 20) => {
+    getEmployees: (hotelId, searchTerm = '', departmentName = '', includeInactive = false, page = 1, pageSize = 20) => {
         const params = new URLSearchParams()
         if (searchTerm) params.append('searchTerm', searchTerm)
         if (departmentName && departmentName !== 'all') params.append('departmentName', departmentName)
+        params.append('includeInactive', includeInactive ? 'true' : 'false')
         params.append('page', page)
         params.append('pageSize', pageSize)
         return api.get(`/hotels/${hotelId}/employees${params.toString() ? `?${params.toString()}` : ''}`)

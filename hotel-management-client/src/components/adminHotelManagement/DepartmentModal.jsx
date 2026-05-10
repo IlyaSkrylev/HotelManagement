@@ -14,7 +14,8 @@ function DepartmentModal({
         description: '',
         managerId: null
     })
-    const [employees, setEmployees] = useState([])
+    const [allEmployees, setAllEmployees] = useState([]) // Все сотрудники (для отображения выбранного)
+    const [managers, setManagers] = useState([]) // Только менеджеры для выпадающего списка
     const [employeesSearch, setEmployeesSearch] = useState('')
     const [isManagerDropdownOpen, setIsManagerDropdownOpen] = useState(false)
     const [submitting, setSubmitting] = useState(false)
@@ -28,7 +29,8 @@ function DepartmentModal({
 
     useEffect(() => {
         if (isOpen && hotelId) {
-            loadEmployees('')
+            loadAllEmployees('')
+            loadManagers('')
             setError('')
         }
     }, [isOpen, hotelId])
@@ -59,11 +61,11 @@ function DepartmentModal({
         return () => document.removeEventListener('mousedown', handleClickOutside)
     }, [])
 
-    const loadEmployees = async (search = '') => {
+    const loadAllEmployees = async (search = '') => {
         setLoadingEmployees(true)
         try {
             const response = await loadEmployeesFromParent(hotelId, search)
-            setEmployees(response || [])
+            setAllEmployees(response || [])
         } catch (error) {
             console.error('Error loading employees:', error)
         } finally {
@@ -71,9 +73,21 @@ function DepartmentModal({
         }
     }
 
+    const loadManagers = async (search = '') => {
+        setLoadingEmployees(true)
+        try {
+            const response = await loadEmployeesFromParent(hotelId, search, 'manager')
+            setManagers(response || [])
+        } catch (error) {
+            console.error('Error loading managers:', error)
+        } finally {
+            setLoadingEmployees(false)
+        }
+    }
+
     const handleManagerSearch = (value) => {
         setEmployeesSearch(value)
-        loadEmployees(value)
+        loadManagers(value)
     }
 
     const handleSubmit = async () => {
@@ -110,7 +124,7 @@ function DepartmentModal({
 
     const getSelectedManager = () => {
         if (!formData.managerId) return null
-        return employees.find(e => e.id === formData.managerId)
+        return allEmployees.find(e => e.id === formData.managerId)
     }
 
     const selectedManager = getSelectedManager()
@@ -210,7 +224,7 @@ function DepartmentModal({
                                                         setFormData({ ...formData, managerId: null })
                                                         setIsManagerDropdownOpen(false)
                                                         setEmployeesSearch('')
-                                                        loadEmployees('')
+                                                        loadManagers('')
                                                     }}
                                                 >
                                                     <div className="manager-option-info">
@@ -221,7 +235,7 @@ function DepartmentModal({
                                                         <span className="option-check">✓</span>
                                                     )}
                                                 </div>
-                                                {employees.map(emp => (
+                                                {managers.map(emp => (
                                                     <div
                                                         key={emp.id}
                                                         className={`manager-option ${formData.managerId === emp.id ? 'selected' : ''}`}
@@ -229,7 +243,7 @@ function DepartmentModal({
                                                             setFormData({ ...formData, managerId: emp.id })
                                                             setIsManagerDropdownOpen(false)
                                                             setEmployeesSearch('')
-                                                            loadEmployees('')
+                                                            loadManagers('')
                                                         }}
                                                     >
                                                         {emp.avatarUrl ? (
@@ -254,9 +268,14 @@ function DepartmentModal({
                                                         )}
                                                     </div>
                                                 ))}
-                                                {employees.length === 0 && employeesSearch && !loadingEmployees && (
+                                                {managers.length === 0 && employeesSearch && !loadingEmployees && (
                                                     <div className="no-employees">
-                                                        Сотрудники не найдены
+                                                        Менеджеры не найдены
+                                                    </div>
+                                                )}
+                                                {managers.length === 0 && !employeesSearch && !loadingEmployees && (
+                                                    <div className="no-employees">
+                                                        Нет доступных менеджеров
                                                     </div>
                                                 )}
                                             </>

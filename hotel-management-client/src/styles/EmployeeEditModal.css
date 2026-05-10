@@ -342,3 +342,14 @@
     font-size: 14px;
     text-align: center;
 }
+
+.disabled-input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    font-size: 14px;
+    cursor: not-allowed;
+}

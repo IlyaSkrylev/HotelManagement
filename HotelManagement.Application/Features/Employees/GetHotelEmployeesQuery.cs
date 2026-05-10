@@ -11,6 +11,7 @@ public record GetHotelEmployeesQuery(
     long HotelId,
     string? SearchTerm = null,
     string? DepartmentName = null,
+    bool IncludeInactive = false,
     int Page = 1,
     int PageSize = 20) : IRequest<PaginatedResult<EmployeeListItemDto>>;
 
@@ -33,9 +34,18 @@ public class GetHotelEmployeesQueryHandler : IRequestHandler<GetHotelEmployeesQu
         var query = _context.Employees
             .Include(e => e.User)
             .Include(e => e.Department)
-            .Where(e => e.HotelId == request.HotelId && e.IsActive);
+            .Include(e => e.ShiftType)
+            .Where(e => e.HotelId == request.HotelId);
 
-        // Поиск по ФИО
+        if (request.IncludeInactive)
+        {
+            query = query.Where(e => !e.IsActive);
+        }
+        else
+        {
+            query = query.Where(e => e.IsActive);
+        }
+
         if (!string.IsNullOrWhiteSpace(request.SearchTerm))
         {
             var searchTerm = request.SearchTerm.Trim().ToLower();
@@ -46,7 +56,6 @@ public class GetHotelEmployeesQueryHandler : IRequestHandler<GetHotelEmployeesQu
             );
         }
 
-        // Фильтрация по отделу
         if (!string.IsNullOrWhiteSpace(request.DepartmentName) && request.DepartmentName != "all")
         {
             query = query.Where(e => e.Department.Name == request.DepartmentName);
@@ -55,10 +64,11 @@ public class GetHotelEmployeesQueryHandler : IRequestHandler<GetHotelEmployeesQu
         var totalCount = await query.CountAsync(cancellationToken);
 
         var items = await query
-            .OrderBy(e => e.User.LastName)      // ✅ Через e.User
-            .ThenBy(e => e.User.FirstName)      // ✅ Через e.User
+            .OrderBy(e => e.User.LastName)
+            .ThenBy(e => e.User.FirstName)
             .Skip((request.Page - 1) * request.PageSize)
             .Take(request.PageSize)
+
             .Select(e => new EmployeeListItemDto
             {
                 Id = e.Id,
@@ -71,6 +81,8 @@ public class GetHotelEmployeesQueryHandler : IRequestHandler<GetHotelEmployeesQu
                 DepartmentId = e.DepartmentId,
                 DepartmentName = e.Department != null ? e.Department.Name : string.Empty,
                 HireDate = e.HireDate,
+                DismissalDate = e.DismissalDate,          
+                DismissalReason = e.DismissalReason,
                 RoleId = _context.UserHotelRoles
                     .Where(uhr => uhr.UserId == e.UserId && uhr.HotelId == request.HotelId)
                     .Select(uhr => uhr.RoleId)
@@ -78,7 +90,19 @@ public class GetHotelEmployeesQueryHandler : IRequestHandler<GetHotelEmployeesQu
                 RoleCode = _context.UserHotelRoles
                     .Where(uhr => uhr.UserId == e.UserId && uhr.HotelId == request.HotelId)
                     .Select(uhr => uhr.Role.Code)
-                    .FirstOrDefault() ?? string.Empty
+                    .FirstOrDefault() ?? string.Empty,
+                Salary = e.Salary,
+                SalarySupplement = e.SalarySupplement,
+                WorkingDayShifts = e.ShiftType != null ? e.ShiftType.WorkingDayShifts : 0,
+                WorkingNightShifts = e.ShiftType != null ? e.ShiftType.WorkingNightShifts : 0,
+                RestDays = e.ShiftType != null ? e.ShiftType.RestDays : 0,
+                DayShiftStart = e.ShiftType != null ? e.ShiftType.DayShiftStartTime.ToString(@"hh\:mm") : "09:00",
+                DayShiftEnd = e.ShiftType != null ? e.ShiftType.DayShiftEndTime.ToString(@"hh\:mm") : "18:00",
+                NightShiftStart = e.ShiftType != null ? e.ShiftType.NightShiftStartTime.ToString(@"hh\:mm") : "21:00",
+                NightShiftEnd = e.ShiftType != null ? e.ShiftType.NightShiftEndTime.ToString(@"hh\:mm") : "06:00",
+                ShiftCycleStartsWithDay = e.ShiftCycleStartsWithDay,
+                ShiftCycleStartDate = e.ShiftCycleStartDate,
+                TotalCycleDays = e.ShiftType != null ? e.ShiftType.TotalCycleDays : 0
             })
             .ToListAsync(cancellationToken);
 

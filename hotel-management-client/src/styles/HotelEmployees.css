@@ -301,3 +301,73 @@
         gap: 4px;
     }
 }
+
+/* Переключатель архив/активные */
+.employees-archive-toggle {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 12px;
+}
+
+.archive-toggle-btn {
+    padding: 8px 20px;
+    background: transparent;
+    border: none;
+    border-radius: 40px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--text-secondary);
+}
+
+    .archive-toggle-btn:hover {
+        background: var(--bg-secondary);
+    }
+
+    .archive-toggle-btn.active {
+        background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+        color: white;
+    }
+
+/* Кнопка увольнения */
+.fire-employee-btn {
+    padding: 8px 20px;
+    background: transparent;
+    border: 1px solid var(--button-danger);
+    color: var(--button-danger);
+    border-radius: 40px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-left: 8px;
+}
+
+    .fire-employee-btn:hover {
+        background: var(--button-danger);
+        color: white;
+    }
+
+.view-employee-btn {
+    padding: 8px 20px;
+    background: transparent;
+    border: 1px solid var(--accent-primary);
+    color: var(--accent-primary);
+    border-radius: 40px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+    .view-employee-btn:hover {
+        background: var(--accent-primary);
+        color: white;
+    }
+
+.employee-dismissal-date {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 4px;
+}

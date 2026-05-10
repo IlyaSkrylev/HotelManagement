@@ -1,0 +1,86 @@
+import React from 'react'
+
+function AdminPanel({ activeTab, setActiveTab, hotelInfo, locationIconUrl, phoneIconUrl, emailIconUrl, hotelIconUrl, hotelId }) {
+    return (
+        <div className="hotel-management-sidebar">
+            <div className="hotel-management-image">
+                {hotelInfo?.imageUrl ? (
+                    <img src={hotelInfo.imageUrl} alt={hotelInfo.name} />
+                ) : (
+                    <div className="image-placeholder">
+                        <img src={hotelIconUrl} alt="hotel" />
+                    </div>
+                )}
+            </div>
+
+            <div className="hotel-management-info">
+                <h3>{hotelInfo?.name || 'Загрузка...'}</h3>
+                {hotelInfo?.address && (
+                    <p className="info-address">
+                        <img src={locationIconUrl} alt="location" className="info-icon" />
+                        <span>{hotelInfo.address}</span>
+                    </p>
+                )}
+                {hotelInfo?.phone && (
+                    <p className="info-phone">
+                        <img src={phoneIconUrl} alt="phone" className="info-icon" />
+                        <span>{hotelInfo.phone}</span>
+                    </p>
+                )}
+                {hotelInfo?.email && (
+                    <p className="info-email">
+                        <img src={emailIconUrl} alt="email" className="info-icon" />
+                        <span>{hotelInfo.email}</span>
+                    </p>
+                )}
+                <p className="info-role">
+                    <span className="label">Должность:</span>
+                    <span className="value">{hotelInfo?.userRole || 'Администратор'}</span>
+                </p>
+                <p className="info-department">
+                    <span className="label">Отдел:</span>
+                    <span className="value">{hotelInfo?.departmentName || 'Администрация'}</span>
+                </p>
+            </div>
+
+            <button
+                className={`sidebar-tab ${activeTab === 'edit' ? 'active' : ''}`}
+                onClick={() => setActiveTab('edit')}
+            >
+                Редактировать
+            </button>
+            <button
+                className={`sidebar-tab ${activeTab === 'structure' ? 'active' : ''}`}
+                onClick={() => setActiveTab('structure')}
+            >
+                Структура
+            </button>
+            <button
+                className={`sidebar-tab ${activeTab === 'departments' ? 'active' : ''}`}
+                onClick={() => setActiveTab('departments')}
+            >
+                Отделы
+            </button>
+            <button
+                className={`sidebar-tab ${activeTab === 'employees' ? 'active' : ''}`}
+                onClick={() => setActiveTab('employees')}
+            >
+                Сотрудники
+            </button>
+            <button
+                className={`sidebar-tab ${activeTab === 'tasks' ? 'active' : ''}`}
+                onClick={() => setActiveTab('tasks')}
+            >
+                Задачи
+            </button>
+            <button
+                className={`sidebar-tab ${activeTab === 'resumes' ? 'active' : ''}`}
+                onClick={() => setActiveTab('resumes')}
+            >
+                Заявки
+            </button>
+        </div>
+    )
+}
+
+export default AdminPanel

@@ -14,6 +14,7 @@ public class GetHotelEmployeesEndpoint : IEndpoint
                 long hotelId,
                 string? searchTerm,
                 string? departmentName,
+                bool includeInactive,
                 int page = 1,
                 int pageSize = 20,
                 IMediator mediator = null!,
@@ -22,7 +23,7 @@ public class GetHotelEmployeesEndpoint : IEndpoint
             logger.LogInformation("GET /api/hotels/{HotelId}/employees вызван с searchTerm={SearchTerm}, departmentName={DepartmentName}, page={Page}",
                 hotelId, searchTerm, departmentName, page);
 
-            var query = new GetHotelEmployeesQuery(hotelId, searchTerm, departmentName, page, pageSize);
+            var query = new GetHotelEmployeesQuery(hotelId, searchTerm, departmentName, includeInactive, page, pageSize);
             var result = await mediator.Send(query);
             return Results.Ok(result);
         })

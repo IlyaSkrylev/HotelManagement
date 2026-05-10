@@ -36,6 +36,8 @@ public class GetMyHotelsQueryHandler : IRequestHandler<GetMyHotelsQuery, Paginat
             .Include(uhr => uhr.Hotel)
             .Include(uhr => uhr.Role)
             .Where(uhr => uhr.UserId == userId && uhr.Hotel != null)
+            .Where(uhr => _context.Employees
+                .Any(e => e.UserId == userId && e.HotelId == uhr.HotelId && e.IsActive))
             .Select(uhr => new MyHotelDto
             {
                 Id = uhr.Hotel.Id,

@@ -1,0 +1,100 @@
+.employee-view-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.employee-view-modal-content {
+    background: var(--bg-card);
+    border-radius: 24px;
+    width: 500px;
+    max-width: 90%;
+    max-height: 85vh;
+    overflow-y: auto;
+    box-shadow: var(--shadow-hover);
+}
+
+.employee-view-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+    .employee-view-modal-header h3 {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 600;
+        background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+        background-clip: text;
+        -webkit-background-clip: text;
+        color: transparent;
+    }
+
+.employee-view-modal-body {
+    padding: 24px;
+}
+
+.employee-view-avatar {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+    .employee-view-avatar img {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid var(--accent-primary);
+    }
+
+.employee-view-info h4 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 18px;
+    color: var(--text-primary);
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    gap: 12px;
+}
+
+.info-label {
+    font-weight: 600;
+    color: var(--accent-primary);
+    font-size: 13px;
+}
+
+.info-value {
+    color: var(--text-primary);
+    font-size: 13px;
+}
+
+.employee-view-modal-footer {
+    padding: 16px 24px;
+    border-top: 1px solid var(--border-color);
+}
+
+.close-btn {
+    width: 100%;
+    padding: 10px;
+    background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+    color: white;
+    border: none;
+    border-radius: 40px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}

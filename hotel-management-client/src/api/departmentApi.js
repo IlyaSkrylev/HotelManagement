@@ -11,9 +11,10 @@ export const departmentApi = {
         return api.get(url)
     },
 
-    getEmployeesForSelect: (hotelId, searchTerm = '') => {
+    getEmployeesForSelect: (hotelId, searchTerm = '', roleCode = '') => {
         const params = new URLSearchParams()
         if (searchTerm) params.append('searchTerm', searchTerm)
+        if (roleCode) params.append('roleCode', roleCode)
         const url = `/hotels/${hotelId}/departments/employees${params.toString() ? `?${params.toString()}` : ''}`
         return api.get(url)
     },

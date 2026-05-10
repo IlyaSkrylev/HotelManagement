@@ -35,4 +35,5 @@ public class EmployeeForSelectDto
     public string FullName { get; set; } = string.Empty;
     public string Position { get; set; } = string.Empty;
     public string? AvatarUrl { get; set; }
+    public string RoleCode { get; set; } = string.Empty; 
 }

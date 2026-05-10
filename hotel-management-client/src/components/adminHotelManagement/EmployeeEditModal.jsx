@@ -3,7 +3,20 @@ import { departmentApi } from '../../api/departmentApi'
 import { userRoleApi } from '../../api/userRoleApi'
 import '../../styles/EmployeeEditModal.css'
 
-function EmployeeEditModal({ isOpen, onClose, onSubmit, initialData, isApprovedResume = false, hotelId }) {
+function EmployeeEditModal({
+    isOpen,
+    onClose,
+    onSubmit,
+    initialData,
+    isApprovedResume = false,
+    hotelId,
+    userRole,
+    currentUserDepartmentId,
+    currentUserDepartmentName
+}) {
+    const isAdmin = userRole === 'admin'
+    const isManager = userRole === 'manager'
+
     const [formData, setFormData] = useState({
         roleId: '',
         departmentId: '',
@@ -33,6 +46,9 @@ function EmployeeEditModal({ isOpen, onClose, onSubmit, initialData, isApprovedR
     const departmentDropdownRef = useRef(null)
     const cycleStartDropdownRef = useRef(null)
 
+    const isHireMode = isApprovedResume && !initialData?.id 
+    const isEditMode = !isApprovedResume && initialData?.id
+
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (roleDropdownRef.current && !roleDropdownRef.current.contains(event.target)) {
@@ -50,10 +66,19 @@ function EmployeeEditModal({ isOpen, onClose, onSubmit, initialData, isApprovedR
     }, [])
 
     useEffect(() => {
+        if (isOpen) {
+            loadUserRoles()
+            if (isAdmin && hotelId) {
+                loadDepartments()
+            }
+        }
+    }, [isOpen, hotelId, isAdmin])
+
+    useEffect(() => {
         if (initialData) {
             setFormData({
                 roleId: initialData.roleId || '',
-                departmentId: initialData.departmentId || '',
+                departmentId: isAdmin ? (initialData.departmentId || '') : (currentUserDepartmentId || ''),
                 position: initialData.position || '',
                 salary: initialData.salary || '',
                 salarySupplement: initialData.salarySupplement || '',
@@ -67,20 +92,41 @@ function EmployeeEditModal({ isOpen, onClose, onSubmit, initialData, isApprovedR
                 shiftCycleStartsWithDay: initialData.shiftCycleStartsWithDay !== undefined ? initialData.shiftCycleStartsWithDay : true,
                 shiftCycleStartDate: initialData.shiftCycleStartDate || new Date().toISOString().split('T')[0]
             })
-            calculateTotalCycleDays(initialData.workingDayShifts || 0, initialData.workingNightShifts || 0, initialData.restDays || 0)
+            calculateTotalCycleDays(
+                initialData.workingDayShifts || 0,
+                initialData.workingNightShifts || 0,
+                initialData.restDays || 0
+            )
         } else {
             resetForm()
         }
-    }, [initialData, isOpen])
+    }, [initialData, isOpen, isAdmin, currentUserDepartmentId])
 
     useEffect(() => {
-        if (isOpen) {
-            loadUserRoles()
-            if (hotelId) {
-                loadDepartments()
-            }
+        if (!isOpen) {
+            setFormData({
+                roleId: '',
+                departmentId: '',
+                position: '',
+                salary: '',
+                salarySupplement: '',
+                workingDayShifts: 0,
+                workingNightShifts: 0,
+                restDays: 0,
+                dayShiftStart: '09:00',
+                dayShiftEnd: '18:00',
+                nightShiftStart: '21:00',
+                nightShiftEnd: '06:00',
+                shiftCycleStartsWithDay: true,
+                shiftCycleStartDate: new Date().toISOString().split('T')[0]
+            })
+            setTotalCycleDays(0)
+            setError('')
+            setIsRoleDropdownOpen(false)
+            setIsDepartmentDropdownOpen(false)
+            setIsCycleStartDropdownOpen(false)
         }
-    }, [isOpen, hotelId])
+    }, [isOpen])
 
     const loadUserRoles = async () => {
         try {
@@ -92,12 +138,14 @@ function EmployeeEditModal({ isOpen, onClose, onSubmit, initialData, isApprovedR
             } else if (data && Array.isArray(data)) {
                 roles = data
             }
-
-           
             setUserRoles(roles)
         } catch (error) {
             console.error('Error loading user roles:', error)
-           
+            setUserRoles([
+                { id: 1, code: 'admin', name: 'Администратор' },
+                { id: 2, code: 'manager', name: 'Менеджер' },
+                { id: 3, code: 'employee', name: 'Сотрудник' }
+            ])
         }
     }
 
@@ -140,26 +188,20 @@ function EmployeeEditModal({ isOpen, onClose, onSubmit, initialData, isApprovedR
 
     const handleWorkingDaysChange = (value) => {
         const dayShifts = parseInt(value) || 0
-        const nightShifts = formData.workingNightShifts
-        const rest = formData.restDays
         setFormData({ ...formData, workingDayShifts: dayShifts })
-        calculateTotalCycleDays(dayShifts, nightShifts, rest)
+        calculateTotalCycleDays(dayShifts, formData.workingNightShifts, formData.restDays)
     }
 
     const handleWorkingNightChange = (value) => {
-        const dayShifts = formData.workingDayShifts
         const nightShifts = parseInt(value) || 0
-        const rest = formData.restDays
         setFormData({ ...formData, workingNightShifts: nightShifts })
-        calculateTotalCycleDays(dayShifts, nightShifts, rest)
+        calculateTotalCycleDays(formData.workingDayShifts, nightShifts, formData.restDays)
     }
 
     const handleRestDaysChange = (value) => {
-        const dayShifts = formData.workingDayShifts
-        const nightShifts = formData.workingNightShifts
         const rest = parseInt(value) || 0
         setFormData({ ...formData, restDays: rest })
-        calculateTotalCycleDays(dayShifts, nightShifts, rest)
+        calculateTotalCycleDays(formData.workingDayShifts, formData.workingNightShifts, rest)
     }
 
     const handleSubmit = async () => {
@@ -173,7 +215,7 @@ function EmployeeEditModal({ isOpen, onClose, onSubmit, initialData, isApprovedR
         const selectedRole = userRoles.find(r => r.id == formData.roleId)
         const needDept = selectedRole?.code === 'manager' || selectedRole?.code === 'employee'
 
-        if (needDept && !formData.departmentId) {
+        if (isAdmin && needDept && !formData.departmentId) {
             setError('Для роли "Менеджер" или "Сотрудник" необходимо выбрать отдел')
             return
         }
@@ -183,33 +225,15 @@ function EmployeeEditModal({ isOpen, onClose, onSubmit, initialData, isApprovedR
             return
         }
 
-        const total = formData.workingDayShifts + formData.workingNightShifts + formData.restDays
-        if (total === 0) {
-            setError('Сумма рабочих дней, ночей и дней отдыха не может быть равна 0')
-            return
-        }
-
-        if (formData.workingDayShifts > 0) {
-            if (!formData.dayShiftStart || !formData.dayShiftEnd) {
-                setError('Укажите время начала и окончания дневной смены')
-                return
-            }
-        }
-
-        if (formData.workingNightShifts > 0) {
-            if (!formData.nightShiftStart || !formData.nightShiftEnd) {
-                setError('Укажите время начала и окончания ночной смены')
-                return
-            }
-        }
-
         setSubmitting(true)
         try {
             const shiftCycleStartDate = new Date(formData.shiftCycleStartDate).toISOString();
 
-            await onSubmit({
-                roleId: formData.roleId,
-                departmentId: formData.departmentId || null,
+            const submitData = {
+                roleId: parseInt(formData.roleId),
+                departmentId: isAdmin
+                    ? (formData.departmentId ? parseInt(formData.departmentId) : null)
+                    : currentUserDepartmentId,
                 position: formData.position,
                 salary: formData.salary ? parseFloat(formData.salary) : null,
                 salarySupplement: formData.salarySupplement ? parseFloat(formData.salarySupplement) : null,
@@ -221,12 +245,17 @@ function EmployeeEditModal({ isOpen, onClose, onSubmit, initialData, isApprovedR
                 nightShiftStart: formData.nightShiftStart,
                 nightShiftEnd: formData.nightShiftEnd,
                 shiftCycleStartsWithDay: formData.shiftCycleStartsWithDay,
-                shiftCycleStartDate: shiftCycleStartDate,  
-                totalCycleDays: total
-            })
+                shiftCycleStartDate: shiftCycleStartDate,
+                totalCycleDays: (parseInt(formData.workingDayShifts) || 0) +
+                    (parseInt(formData.workingNightShifts) || 0) +
+                    (parseInt(formData.restDays) || 0)
+            }
+
+            await onSubmit(submitData)
             onClose()
             resetForm()
         } catch (error) {
+            console.error('Submit error:', error)
             setError(error.response?.data?.message || 'Ошибка при сохранении')
         } finally {
             setSubmitting(false)
@@ -239,6 +268,9 @@ function EmployeeEditModal({ isOpen, onClose, onSubmit, initialData, isApprovedR
     }
 
     const getSelectedDepartmentName = () => {
+        if (!isAdmin && currentUserDepartmentName) {
+            return currentUserDepartmentName
+        }
         const dept = departments.find(d => d.id == formData.departmentId)
         return dept?.name || 'Выберите отдел'
     }
@@ -261,7 +293,7 @@ function EmployeeEditModal({ isOpen, onClose, onSubmit, initialData, isApprovedR
         <div className="employee-modal-overlay" onClick={onClose}>
             <div className="employee-modal-content" onClick={(e) => e.stopPropagation()}>
                 <div className="employee-modal-header">
-                    <h3>{isApprovedResume ? 'Принять на работу' : 'Редактирование сотрудника'}</h3>
+                    <h3>{isHireMode ? 'Принять на работу' : 'Редактирование сотрудника'}</h3>
                     <button className="modal-close" onClick={onClose}>×</button>
                 </div>
 
@@ -271,73 +303,86 @@ function EmployeeEditModal({ isOpen, onClose, onSubmit, initialData, isApprovedR
                     <div className="form-row">
                         <div className="form-group">
                             <label>Роль *</label>
-                            <div className="custom-select" ref={roleDropdownRef}>
-                                <button
-                                    className={`custom-select-trigger ${isRoleDropdownOpen ? 'open' : ''}`}
-                                    onClick={() => setIsRoleDropdownOpen(!isRoleDropdownOpen)}
-                                    type="button"
-                                >
-                                    <span>{getSelectedRoleName()}</span>
-                                    <span className="select-arrow">{isRoleDropdownOpen ? '▲' : '▼'}</span>
-                                </button>
-                                {isRoleDropdownOpen && (
-                                    <div className="custom-select-dropdown">
-                                        {userRoles.length === 0 ? (
-                                            <div className="select-option-empty">Загрузка...</div>
-                                        ) : (
-                                            userRoles.map(role => (
-                                                <div
-                                                    key={role.id}
-                                                    className={`select-option ${formData.roleId == role.id ? 'active' : ''}`}
-                                                    onClick={() => {
-                                                        setFormData({ ...formData, roleId: role.id, departmentId: '' })
-                                                        setIsRoleDropdownOpen(false)
-                                                    }}
-                                                >
-                                                    {role.name}
-                                                    {formData.roleId == role.id && <span className="option-check">✓</span>}
-                                                </div>
-                                            ))
-                                        )}
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-
-                        {needDepartment() && (
-                            <div className="form-group">
-                                <label>Отдел *</label>
-                                <div className="custom-select" ref={departmentDropdownRef}>
+                            {isAdmin ? (
+                                <div className="custom-select" ref={roleDropdownRef}>
                                     <button
-                                        className={`custom-select-trigger ${isDepartmentDropdownOpen ? 'open' : ''}`}
-                                        onClick={() => setIsDepartmentDropdownOpen(!isDepartmentDropdownOpen)}
+                                        className={`custom-select-trigger ${isRoleDropdownOpen ? 'open' : ''}`}
+                                        onClick={() => setIsRoleDropdownOpen(!isRoleDropdownOpen)}
                                         type="button"
                                     >
-                                        <span>{getSelectedDepartmentName()}</span>
-                                        <span className="select-arrow">{isDepartmentDropdownOpen ? '▲' : '▼'}</span>
+                                        <span>{getSelectedRoleName()}</span>
+                                        <span className="select-arrow">{isRoleDropdownOpen ? '▲' : '▼'}</span>
                                     </button>
-                                    {isDepartmentDropdownOpen && (
+                                    {isRoleDropdownOpen && (
                                         <div className="custom-select-dropdown">
-                                            {departments.length === 0 ? (
-                                                <div className="select-option-empty">Нет отделов</div>
+                                            {userRoles.length === 0 ? (
+                                                <div className="select-option-empty">Загрузка...</div>
                                             ) : (
-                                                departments.map(dept => (
+                                                userRoles.map(role => (
                                                     <div
-                                                        key={dept.id}
-                                                        className={`select-option ${formData.departmentId == dept.id ? 'active' : ''}`}
+                                                        key={role.id}
+                                                        className={`select-option ${formData.roleId == role.id ? 'active' : ''}`}
                                                         onClick={() => {
-                                                            setFormData({ ...formData, departmentId: dept.id })
-                                                            setIsDepartmentDropdownOpen(false)
+                                                            setFormData({ ...formData, roleId: role.id })
+                                                            setIsRoleDropdownOpen(false)
                                                         }}
                                                     >
-                                                        {dept.name}
-                                                        {formData.departmentId == dept.id && <span className="option-check">✓</span>}
+                                                        {role.name}
+                                                        {formData.roleId == role.id && <span className="option-check">✓</span>}
                                                     </div>
                                                 ))
                                             )}
                                         </div>
                                     )}
                                 </div>
+                            ) : (
+                                <input type="text" value={getSelectedRoleName()} disabled className="disabled-input" />
+                            )}
+                        </div>
+
+                        {needDepartment() && (
+                            <div className="form-group">
+                                <label>Отдел {isAdmin ? '*' : '(ваш отдел)'}</label>
+                                {isAdmin ? (
+                                    <div className="custom-select" ref={departmentDropdownRef}>
+                                        <button
+                                            className={`custom-select-trigger ${isDepartmentDropdownOpen ? 'open' : ''}`}
+                                            onClick={() => setIsDepartmentDropdownOpen(!isDepartmentDropdownOpen)}
+                                            type="button"
+                                        >
+                                            <span>{getSelectedDepartmentName()}</span>
+                                            <span className="select-arrow">{isDepartmentDropdownOpen ? '▲' : '▼'}</span>
+                                        </button>
+                                        {isDepartmentDropdownOpen && (
+                                            <div className="custom-select-dropdown">
+                                                {departments.length === 0 ? (
+                                                    <div className="select-option-empty">Нет отделов</div>
+                                                ) : (
+                                                    departments.map(dept => (
+                                                        <div
+                                                            key={dept.id}
+                                                            className={`select-option ${formData.departmentId == dept.id ? 'active' : ''}`}
+                                                            onClick={() => {
+                                                                setFormData({ ...formData, departmentId: dept.id })
+                                                                setIsDepartmentDropdownOpen(false)
+                                                            }}
+                                                        >
+                                                            {dept.name}
+                                                            {formData.departmentId == dept.id && <span className="option-check">✓</span>}
+                                                        </div>
+                                                    ))
+                                                )}
+                                            </div>
+                                        )}
+                                    </div>
+                                ) : (
+                                    <input
+                                        type="text"
+                                        value={getSelectedDepartmentName()}
+                                        disabled
+                                        className="disabled-input"
+                                    />
+                                )}
                             </div>
                         )}
                     </div>
@@ -517,7 +562,7 @@ function EmployeeEditModal({ isOpen, onClose, onSubmit, initialData, isApprovedR
                 <div className="employee-modal-footer">
                     <button className="cancel-btn" onClick={onClose}>Отмена</button>
                     <button className="save-btn" onClick={handleSubmit} disabled={submitting}>
-                        {submitting ? 'Сохранение...' : (isApprovedResume ? 'Принять на работу' : 'Сохранить')}
+                        {submitting ? 'Сохранение...' : (isHireMode ? 'Принять на работу' : 'Сохранить')}
                     </button>
                 </div>
             </div>
