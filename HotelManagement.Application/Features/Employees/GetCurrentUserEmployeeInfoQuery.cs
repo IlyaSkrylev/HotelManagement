@@ -41,6 +41,7 @@ public class GetCurrentUserEmployeeInfoQueryHandler : IRequestHandler<GetCurrent
 
         return new CurrentUserEmployeeInfoDto
         {
+            Id = employee.Id,
             DepartmentId = employee.DepartmentId,
             DepartmentName = employee.Department?.Name,
             Position = employee.Position,

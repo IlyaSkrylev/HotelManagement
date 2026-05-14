@@ -16,11 +16,16 @@ public class HotelTask : IEntity
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset UpdatedAt { get; set; }
     public string? Notes { get; set; }
+    public bool RequiresInspection { get; set; } = false; 
+    public DateTimeOffset? InspectedAt { get; set; }     
+    public long? InspectedById { get; set; }
+    public bool IsActive { get; set; } = true;
 
     public virtual HotelTaskType TaskType { get; set; } = null!;
     public virtual HotelTaskStatus TaskStatus { get; set; } = null!;
     public virtual HotelTaskPriority Priority { get; set; } = null!;
     public virtual Employee AssignedTo { get; set; } = null!;
     public virtual Employee CreatedBy { get; set; } = null!;
+    public virtual Employee? InspectedBy { get; set; }
     public virtual HotelRoom? Room { get; set; }
 }

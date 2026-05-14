@@ -33,10 +33,14 @@ public class GetHotelEmployeesForSelectQueryHandler : IRequestHandler<GetHotelEm
 
         if (!string.IsNullOrWhiteSpace(request.RoleCode))
         {
+            var roleCodes = request.RoleCode == "manager"
+                ? new[] { "manager", "admin" }
+                : new[] { request.RoleCode };
+
             query = query.Where(e => _context.UserHotelRoles
                 .Any(uhr => uhr.UserId == e.UserId &&
                             uhr.HotelId == request.HotelId &&
-                            uhr.Role.Code == request.RoleCode));
+                            roleCodes.Contains(uhr.Role.Code)));
         }
 
         if (!string.IsNullOrWhiteSpace(request.SearchTerm))

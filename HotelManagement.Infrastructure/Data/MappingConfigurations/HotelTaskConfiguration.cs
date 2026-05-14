@@ -56,6 +56,22 @@ public class HotelTaskConfiguration : IEntityTypeConfiguration<HotelTask>
             .HasColumnName("notes")
             .HasMaxLength(10000);
 
+        builder.Property(x => x.RequiresInspection)
+            .HasColumnName("requires_inspection")
+            .HasDefaultValue(false)
+            .IsRequired();
+
+        builder.Property(x => x.InspectedAt)
+            .HasColumnName("inspected_at");
+
+        builder.Property(x => x.InspectedById)
+            .HasColumnName("inspected_by_id");
+
+        builder.Property(x => x.IsActive)
+            .HasColumnName("is_active")
+            .HasDefaultValue(true)
+            .IsRequired();
+
         builder.HasOne(x => x.TaskType)
             .WithMany()
             .HasForeignKey(x => x.TaskTypeId)
@@ -85,5 +101,11 @@ public class HotelTaskConfiguration : IEntityTypeConfiguration<HotelTask>
             .WithMany(r => r.Tasks)
             .HasForeignKey(x => x.RoomId)
             .OnDelete(DeleteBehavior.SetNull);
+
+        // Навигационное свойство для проверяющего
+        builder.HasOne(x => x.InspectedBy)
+            .WithMany()
+            .HasForeignKey(x => x.InspectedById)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

@@ -1,0 +1,604 @@
+.hotel-tasks {
+    width: 100%;
+}
+
+.tasks-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+    .tasks-header h2 {
+        margin: 0;
+        font-size: 24px;
+        background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+        background-clip: text;
+        -webkit-background-clip: text;
+        color: transparent;
+    }
+
+.create-task-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 24px;
+    background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+    color: white;
+    border: none;
+    border-radius: 40px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+    .create-task-btn:hover {
+        transform: translateY(-2px);
+        filter: brightness(1.05);
+    }
+
+.tasks-tabs {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 12px;
+}
+
+.tasks-filters {
+    margin-bottom: 24px;
+}
+
+.search-wrapper {
+    max-width: 300px;
+}
+
+.search-input {
+    width: 100%;
+    padding: 10px 16px;
+    border: 2px solid var(--border-color);
+    border-radius: 40px;
+    background: var(--bg-input);
+    color: var(--text-primary);
+    font-size: 14px;
+}
+
+    .search-input:focus {
+        outline: none;
+        border-color: var(--accent-primary);
+    }
+
+.tasks-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.task-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 16px 20px;
+    background: var(--bg-card);
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    transition: all 0.2s;
+}
+
+    .task-card:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-hover);
+    }
+
+.task-number {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--accent-primary);
+    color: white;
+    border-radius: 50%;
+    font-weight: 600;
+    font-size: 14px;
+    flex-shrink: 0;
+}
+
+.task-content {
+    flex: 1;
+}
+
+.task-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+}
+
+.type-badge {
+    padding: 4px 12px;
+    background: var(--bg-secondary);
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.status-badge,
+.priority-badge {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    color: white;
+}
+
+.task-info {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 8px;
+    font-size: 13px;
+}
+
+    .task-info .label {
+        font-weight: 600;
+        color: var(--accent-primary);
+        margin-right: 8px;
+    }
+
+.task-notes {
+    grid-column: 1 / -1;
+}
+
+.task-actions {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.edit-task-btn,
+.delete-task-btn {
+    padding: 8px 16px;
+    border-radius: 40px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.edit-task-btn {
+    background: transparent;
+    border: 2px solid var(--border-color);
+    color: var(--text-primary);
+}
+
+    .edit-task-btn:hover {
+        border-color: var(--accent-primary);
+        color: var(--accent-primary);
+    }
+
+.delete-task-btn {
+    background: transparent;
+    border: 2px solid var(--button-danger);
+    color: var(--button-danger);
+}
+
+    .delete-task-btn:hover {
+        background: var(--button-danger);
+        color: white;
+    }
+
+.no-data {
+    text-align: center;
+    padding: 60px;
+    color: var(--text-secondary);
+    background: var(--bg-secondary);
+    border-radius: 16px;
+}
+
+.loading {
+    text-align: center;
+    padding: 60px;
+    color: var(--text-secondary);
+}
+
+@media (max-width: 768px) {
+    .task-card {
+        flex-direction: column;
+    }
+
+    .task-number {
+        position: absolute;
+        opacity: 0.5;
+    }
+
+    .task-actions {
+        width: 100%;
+        margin-top: 12px;
+    }
+
+    .edit-task-btn,
+    .delete-task-btn {
+        flex: 1;
+        text-align: center;
+    }
+
+    .task-info {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Выпадающий список для статуса */
+.status-select {
+    position: relative;
+    min-width: 160px;
+    z-index: 10;
+}
+
+.status-select-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 8px 16px;
+    background: var(--bg-input);
+    border: 2px solid var(--border-color);
+    border-radius: 40px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--text-primary);
+    min-width: 140px;
+}
+
+    .status-select-trigger.open {
+        border-color: var(--accent-primary);
+        box-shadow: 0 0 0 2px rgba(230, 57, 70, 0.2);
+    }
+
+.select-arrow {
+    font-size: 10px;
+    transition: transform 0.2s;
+}
+
+.status-select-trigger.open .select-arrow {
+    transform: rotate(180deg);
+}
+
+.status-select-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    box-shadow: var(--shadow-hover);
+    z-index: 1000;
+    overflow: hidden;
+    min-width: 160px;
+    animation: dropdownFadeIn 0.2s ease;
+}
+
+.status-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--text-primary);
+    font-size: 13px;
+    font-weight: 500;
+}
+
+    .status-option:hover {
+        background: var(--bg-secondary);
+    }
+
+    .status-option.active {
+        background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+        color: white;
+    }
+
+    .status-option .status-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+
+.option-check {
+    margin-left: auto;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+/* Адаптивность для карточек */
+@media (max-width: 768px) {
+    .task-card {
+        flex-direction: column;
+    }
+
+    .task-actions {
+        width: 100%;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .status-select {
+        width: 100%;
+    }
+
+    .status-select-trigger {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .edit-task-btn,
+    .delete-task-btn {
+        width: 100%;
+        text-align: center;
+    }
+}
+
+.task-card {
+    overflow: visible !important;
+    position: relative;
+}
+
+.task-actions {
+    overflow: visible !important;
+    position: relative;
+}
+
+.custom-select,
+.status-select {
+    overflow: visible !important;
+    position: relative;
+}
+
+.status-select-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    right: auto;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    box-shadow: var(--shadow-hover);
+    z-index: 9999 !important;
+    overflow: hidden;
+    min-width: 200px;
+    animation: dropdownFadeIn 0.2s ease;
+}
+
+/* Для мобильных устройств */
+@media (max-width: 768px) {
+    .status-select-dropdown {
+        position: fixed;
+        top: auto;
+        left: 20px !important;
+        right: 20px !important;
+        width: calc(100% - 40px);
+        min-width: auto;
+        z-index: 9999 !important;
+    }
+}
+
+/* Убираем transform у карточки при hover, чтобы не сбивало позиционирование */
+.task-card:hover {
+    transform: none;
+}
+
+.tasks-list {
+    overflow: visible !important;
+}
+
+/* Решение проблемы перекрытия выпадающих списков */
+.tasks-list {
+    overflow: visible !important;
+    position: relative;
+    z-index: 1;
+}
+
+.task-card {
+    overflow: visible !important;
+    position: relative;
+    z-index: 1;
+}
+
+    /* Карточка с открытым дропдауном поднимается выше */
+    .task-card:has(.status-select-trigger.open) {
+        z-index: 100 !important;
+    }
+
+.task-actions {
+    overflow: visible !important;
+    position: relative;
+}
+
+.custom-select,
+.status-select {
+    overflow: visible !important;
+    position: relative;
+}
+
+.status-select-trigger {
+    position: relative;
+    z-index: 2;
+}
+
+    .status-select-trigger.open {
+        z-index: 1001;
+    }
+
+.status-select-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    margin-top: 8px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    min-width: 200px;
+}
+
+/* Важно: убираем overflow hidden у всех родительских контейнеров */
+.tasks-list,
+.task-card,
+.task-card * {
+    overflow: visible !important;
+}
+
+    /* Убираем transform у карточки при hover */
+    .task-card:hover {
+        transform: none;
+    }
+
+
+/* Строка фильтров */
+.filters-row {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.search-wrapper {
+    flex: 2;
+    min-width: 250px;
+}
+
+.search-input {
+    width: 100%;
+    padding: 10px 16px;
+    border: 2px solid var(--border-color);
+    border-radius: 40px;
+    background: var(--bg-input);
+    color: var(--text-primary);
+    font-size: 14px;
+}
+
+    .search-input:focus {
+        outline: none;
+        border-color: var(--accent-primary);
+    }
+
+/* Выпадающие фильтры */
+.filter-dropdown {
+    position: relative;
+}
+
+.filter-trigger {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    background: var(--bg-input);
+    border: 2px solid var(--border-color);
+    border-radius: 40px;
+    font-size: 14px;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.2s;
+    min-width: 130px;
+    justify-content: space-between;
+    white-space: nowrap;
+}
+
+    .filter-trigger:hover {
+        border-color: var(--accent-primary);
+    }
+
+.filter-icon {
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
+}
+
+.filter-arrow {
+    font-size: 10px;
+    color: var(--text-secondary);
+    transition: transform 0.2s;
+}
+
+.filter-trigger.open .filter-arrow {
+    transform: rotate(180deg);
+}
+
+.filter-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    z-index: 100;
+    overflow: hidden;
+    min-width: 180px;
+}
+
+.filter-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--text-primary);
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+    .filter-option:hover {
+        background: var(--bg-secondary);
+    }
+
+    .filter-option.active {
+        background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+        color: white;
+    }
+
+.priority-dot,
+.status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+/* Адаптивность для мобильных устройств */
+@media (max-width: 768px) {
+    .filters-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .search-wrapper {
+        width: 100%;
+    }
+
+    .filter-dropdown {
+        width: 100%;
+    }
+
+    .filter-trigger {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .filter-menu {
+        width: 100%;
+        min-width: auto;
+    }
+}

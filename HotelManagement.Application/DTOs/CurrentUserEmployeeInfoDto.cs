@@ -2,6 +2,7 @@
 
 public class CurrentUserEmployeeInfoDto
 {
+    public long Id { get; set; }
     public long DepartmentId { get; set; }
     public string? DepartmentName { get; set; }
     public string Position { get; set; } = string.Empty;
