@@ -12,7 +12,7 @@ public class EmployeeListItemDto
     public long DepartmentId { get; set; }
     public string DepartmentName { get; set; } = string.Empty;
     public DateTimeOffset HireDate { get; set; }
-    public DateTimeOffset? DismissalDate { get; set; }     
+    public DateTimeOffset? DismissalDate { get; set; }
     public string? DismissalReason { get; set; }
     public long RoleId { get; set; }
     public string RoleCode { get; set; } = string.Empty;
@@ -29,4 +29,8 @@ public class EmployeeListItemDto
     public bool ShiftCycleStartsWithDay { get; set; } = true;
     public DateTimeOffset ShiftCycleStartDate { get; set; }
     public int TotalCycleDays { get; set; }
+
+    public DateTimeOffset? VacationStartDate { get; set; }
+    public DateTimeOffset? VacationEndDate { get; set; }
+    public string? VacationType { get; set; } 
 }

@@ -33,7 +33,10 @@ public class UpdateEmployeeEndpoint : IEndpoint
                 TimeOnly.Parse(request.NightShiftEnd),
                 request.ShiftCycleStartsWithDay,
                 request.ShiftCycleStartDate,
-                request.TotalCycleDays);
+                request.TotalCycleDays,
+                request.VacationStartDate,
+                request.VacationEndDate,
+                request.VacationType);
 
             var result = await mediator.Send(command);
             return Results.Ok(BaseResponse.Ok(result));
@@ -63,4 +66,7 @@ public class UpdateEmployeeRequest
     public bool ShiftCycleStartsWithDay { get; set; } = true;
     public DateTimeOffset ShiftCycleStartDate { get; set; }
     public int TotalCycleDays { get; set; }
+    public DateTimeOffset? VacationStartDate { get; set; }
+    public DateTimeOffset? VacationEndDate { get; set; }
+    public string? VacationType { get; set; }
 }

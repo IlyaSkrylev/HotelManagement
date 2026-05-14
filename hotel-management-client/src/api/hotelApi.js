@@ -11,7 +11,9 @@ export const hotelApi = {
         api.post(`/hotels/${hotelId}/hire/${resumeId}`, data),
     fireEmployee: (employeeId, dismissalReason) =>
         api.delete(`/employees/${employeeId}?dismissalReason=${encodeURIComponent(dismissalReason)}`),
-    updateEmployee: (employeeId, data) => api.put(`/employees/${employeeId}`, data),
+    updateEmployee: (employeeId, data) => {
+        return api.put(`/employees/${employeeId}`, data)
+    },
 
     getEmployees: (hotelId, searchTerm = '', departmentName = '', includeInactive = false, page = 1, pageSize = 20) => {
         const params = new URLSearchParams()

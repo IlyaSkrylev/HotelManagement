@@ -43,15 +43,17 @@ function EmployeePanel({ activeTab, setActiveTab, hotelInfo, locationIconUrl, ph
                 </p>
             </div>
 
+            <div className="sidebar-divider">Личный кабинет</div>
+
             <button
-                className={`sidebar-tab ${activeTab === 'tasks' ? 'active' : ''}`}
-                onClick={() => setActiveTab('tasks')}
+                className={`sidebar-tab ${activeTab === 'my-tasks' ? 'active' : ''}`}
+                onClick={() => setActiveTab('my-tasks')}
             >
                 Мои задачи
             </button>
             <button
-                className={`sidebar-tab ${activeTab === 'schedule' ? 'active' : ''}`}
-                onClick={() => setActiveTab('schedule')}
+                className={`sidebar-tab ${activeTab === 'my-schedule' ? 'active' : ''}`}
+                onClick={() => setActiveTab('my-schedule')}
             >
                 Мой график
             </button>

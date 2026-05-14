@@ -19,6 +19,9 @@ export const departmentApi = {
         return api.get(url)
     },
 
+    getSchedule: (departmentId, year, month) =>
+        api.get(`/departments/${departmentId}/schedule?year=${year}&month=${month}`),
+
     createDepartment: (hotelId, data) => api.post(`/hotels/${hotelId}/departments`, data),
 
     updateDepartment: (id, data) => api.put(`/departments/${id}`, data),

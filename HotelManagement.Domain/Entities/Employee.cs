@@ -20,6 +20,9 @@ public class Employee : IEntity
     public DateTimeOffset UpdatedAt { get; set; }
     public DateTimeOffset ShiftCycleStartDate { get; set; }
     public bool ShiftCycleStartsWithDay { get; set; } = true;
+    public DateTimeOffset? VacationStartDate { get; set; }
+    public DateTimeOffset? VacationEndDate { get; set; }
+    public string? VacationType { get; set; }
 
     public virtual User User { get; set; } = null!;
     public virtual Hotel Hotel { get; set; } = null!;

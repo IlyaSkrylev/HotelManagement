@@ -1,5 +1,4 @@
-﻿// CreateEmployeeFromResumeCommand.cs - добавьте удаление резюме
-using HotelManagement.Application.Abstractions;
+﻿using HotelManagement.Application.Abstractions;
 using HotelManagement.Application.DTOs;
 using HotelManagement.Domain.Entities;
 using MediatR;
@@ -25,7 +24,10 @@ public record CreateEmployeeFromResumeCommand(
     TimeOnly NightShiftEnd,
     bool ShiftCycleStartsWithDay,
     DateTimeOffset ShiftCycleStartDate,
-    int TotalCycleDays) : IRequest<EmployeeDto>;
+    int TotalCycleDays,
+    DateTimeOffset? VacationStartDate = null,
+    DateTimeOffset? VacationEndDate = null,
+    string? VacationType = null) : IRequest<EmployeeDto>;
 
 public class CreateEmployeeFromResumeCommandHandler : IRequestHandler<CreateEmployeeFromResumeCommand, EmployeeDto>
 {
@@ -42,7 +44,6 @@ public class CreateEmployeeFromResumeCommandHandler : IRequestHandler<CreateEmpl
     {
         _logger.LogInformation("Найм сотрудника из резюме для отеля ID: {HotelId}, UserId: {UserId}", request.HotelId, request.UserId);
 
-        // 1. Находим резюме
         var resume = await _context.Resumes
             .FirstOrDefaultAsync(r => r.UserId == request.UserId && r.HotelId == request.HotelId, cancellationToken);
 
@@ -52,10 +53,8 @@ public class CreateEmployeeFromResumeCommandHandler : IRequestHandler<CreateEmpl
             throw new Exception("Резюме не найдено");
         }
 
-        // 2. Создаем тип смены
         var shiftType = await CreateOrGetShiftType(request, cancellationToken);
 
-        // 3. Создаем сотрудника
         var employee = new Employee
         {
             UserId = request.UserId,
@@ -70,13 +69,15 @@ public class CreateEmployeeFromResumeCommandHandler : IRequestHandler<CreateEmpl
             ShiftCycleStartDate = request.ShiftCycleStartDate.ToUniversalTime(),
             ShiftCycleStartsWithDay = request.ShiftCycleStartsWithDay,
             CreatedAt = DateTimeOffset.UtcNow,
-            UpdatedAt = DateTimeOffset.UtcNow
+            UpdatedAt = DateTimeOffset.UtcNow,
+            VacationStartDate = request.VacationStartDate?.ToUniversalTime(),
+            VacationEndDate = request.VacationEndDate?.ToUniversalTime(),
+            VacationType = request.VacationType
         };
 
         _context.Employees.Add(employee);
         await _context.SaveChangesAsync(cancellationToken);
 
-        // 4. Создаем роль пользователя в отеле
         var userHotelRole = new UserHotelRole
         {
             UserId = request.UserId,
@@ -88,7 +89,6 @@ public class CreateEmployeeFromResumeCommandHandler : IRequestHandler<CreateEmpl
         _context.UserHotelRoles.Add(userHotelRole);
         await _context.SaveChangesAsync(cancellationToken);
 
-        // 5. УДАЛЯЕМ РЕЗЮМЕ (вместо изменения статуса!)
         _context.Resumes.Remove(resume);
         await _context.SaveChangesAsync(cancellationToken);
 

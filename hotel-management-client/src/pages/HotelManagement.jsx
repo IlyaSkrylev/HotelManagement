@@ -10,8 +10,10 @@ import HotelStructure from '../components/adminHotelManagement/HotelStructure'
 import HotelTasks from '../components/adminHotelManagement/HotelTasks'
 import AdminPanel from '../components/adminHotelManagement/AdminPanel'
 import ManagerPanel from '../components/managerHotelManagement/ManagerPanel'
+import DepartmentSchedule from '../components/managerHotelManagement/DepartmentSchedule'
 import EmployeePanel from '../components/employeeHotelManagement/EmployeePanel'
 import EmployeeTasks from '../components/employeeHotelManagement/EmployeeTasks'
+import EmployeeSchedule from '../components/employeeHotelManagement/EmployeeSchedule'
 import '../styles/HotelManagement.css'
 
 function HotelManagement() {
@@ -50,14 +52,15 @@ function HotelManagement() {
             if (role?.code === 'manager') {
                 await loadManagerDepartment()
             }
-            
-            if (role?.code === 'employee') {
-                await loadCurrentEmployee()
-                setActiveTab('tasks')
-            } else if (role?.code === 'admin') {
+
+            await loadCurrentEmployee()
+
+            if (role?.code === 'admin') {
                 setActiveTab('edit')
             } else if (role?.code === 'manager') {
                 setActiveTab('departments')
+            } else if (role?.code === 'employee') {
+                setActiveTab('my-tasks')
             }
         } catch (error) {
             console.error('Error loading user role:', error)
@@ -109,7 +112,9 @@ function HotelManagement() {
         try {
             const response = await hotelApi.getCurrentUserEmployeeInfo(hotelId)
             const data = response.data.data
-            setCurrentEmployeeId(data.id)
+            if (data && data.id) {
+                setCurrentEmployeeId(data.id)
+            }
         } catch (error) {
             console.error('Error loading current employee:', error)
         }
@@ -154,6 +159,29 @@ function HotelManagement() {
                     )
                 case 'resumes':
                     return <HotelResumes hotelId={hotelId} />
+                case 'my-tasks':
+                    if (!currentEmployeeId) {
+                        return <div className="loading">Загрузка данных сотрудника...</div>
+                    }
+                    return (
+                        <EmployeeTasks
+                            hotelId={hotelId}
+                            userRole={userRole}
+                            currentUserDepartmentId={currentUserDepartmentId}
+                            currentUserDepartmentName={currentUserDepartmentName}
+                            currentEmployeeId={currentEmployeeId}
+                        />
+                    )
+                case 'my-schedule':
+                    if (!currentEmployeeId) {
+                        return <div className="loading">Загрузка данных сотрудника...</div>
+                    }
+                    return (
+                        <EmployeeSchedule
+                            hotelId={hotelId}
+                            currentEmployeeId={currentEmployeeId}
+                        />
+                    )
                 default:
                     return null
             }
@@ -179,12 +207,7 @@ function HotelManagement() {
                             currentUserDepartmentName={currentUserDepartmentName}
                         />
                     )
-                default:
-                    return null
-            }
-        } else if (userRole === 'employee') {
-            switch (activeTab) {
-                case 'tasks':
+                case 'my-tasks':
                     if (!currentEmployeeId) {
                         return <div className="loading">Загрузка данных сотрудника...</div>
                     }
@@ -197,12 +220,53 @@ function HotelManagement() {
                             currentEmployeeId={currentEmployeeId}
                         />
                     )
-                case 'schedule':
+                case 'my-schedule':
+                    if (!currentEmployeeId) {
+                        return <div className="loading">Загрузка данных сотрудника...</div>
+                    }
                     return (
-                        <div className="schedule-section">
-                            <h2>Мой график работы</h2>
-                            <p>Здесь будет график работы</p>
-                        </div>
+                        <EmployeeSchedule
+                            hotelId={hotelId}
+                            currentEmployeeId={currentEmployeeId}
+                        />
+                    )
+                case 'department-schedule':
+                    if (!currentUserDepartmentId) {
+                        return <div className="loading">Загрузка...</div>
+                    }
+                    return (
+                        <DepartmentSchedule
+                            departmentId={currentUserDepartmentId}
+                            departmentName={currentUserDepartmentName}
+                        />
+                    )
+                default:
+                    return null
+            }
+        } else if (userRole === 'employee') {
+            switch (activeTab) {
+                case 'my-tasks':
+                    if (!currentEmployeeId) {
+                        return <div className="loading">Загрузка данных сотрудника...</div>
+                    }
+                    return (
+                        <EmployeeTasks
+                            hotelId={hotelId}
+                            userRole={userRole}
+                            currentUserDepartmentId={currentUserDepartmentId}
+                            currentUserDepartmentName={currentUserDepartmentName}
+                            currentEmployeeId={currentEmployeeId}
+                        />
+                    )
+                case 'my-schedule':
+                    if (!currentEmployeeId) {
+                        return <div className="loading">Загрузка данных сотрудника...</div>
+                    }
+                    return (
+                        <EmployeeSchedule
+                            hotelId={hotelId}
+                            currentEmployeeId={currentEmployeeId}
+                        />
                     )
                 default:
                     return null
@@ -220,7 +284,8 @@ function HotelManagement() {
             phoneIconUrl,
             emailIconUrl,
             hotelIconUrl,
-            hotelId
+            hotelId,
+            currentEmployeeId
         }
 
         if (userRole === 'admin') {

@@ -7,6 +7,21 @@ function EmployeeViewModal({ isOpen, onClose, employee }) {
 
     const profileIconUrl = getIconUrl('profile')
 
+    const formatDate = (dateString) => {
+        if (!dateString) return '—'
+        return new Date(dateString).toLocaleDateString('ru-RU')
+    }
+
+    const getLeaveTypeName = (type) => {
+        const types = {
+            'vacation': 'Отпуск',
+            'sick_leave': 'Больничный',
+            'unpaid': 'Отпуск без сохранения зарплаты',
+            'maternity': 'Декретный отпуск'
+        }
+        return types[type] || type || '—'
+    }
+
     return (
         <div className="employee-view-modal-overlay" onClick={onClose}>
             <div className="employee-view-modal-content" onClick={(e) => e.stopPropagation()}>
@@ -44,12 +59,12 @@ function EmployeeViewModal({ isOpen, onClose, employee }) {
                             <div className="info-value">{employee.salarySupplement ? `${employee.salarySupplement} Br` : '—'}</div>
 
                             <div className="info-label">Дата найма:</div>
-                            <div className="info-value">{new Date(employee.hireDate).toLocaleDateString('ru-RU')}</div>
+                            <div className="info-value">{formatDate(employee.hireDate)}</div>
 
                             {employee.dismissalDate && (
                                 <>
                                     <div className="info-label">Дата увольнения:</div>
-                                    <div className="info-value">{new Date(employee.dismissalDate).toLocaleDateString('ru-RU')}</div>
+                                    <div className="info-value">{formatDate(employee.dismissalDate)}</div>
                                 </>
                             )}
 
@@ -66,6 +81,20 @@ function EmployeeViewModal({ isOpen, onClose, employee }) {
                                 {employee.workingNightShifts > 0 && `${employee.workingNightShifts} ноч. `}
                                 {employee.restDays > 0 && `${employee.restDays} отд.`}
                             </div>
+
+                            {(employee.leaveStartDate || employee.leaveEndDate || employee.leaveType) && (
+                                <>
+                                    <div className="info-label">Отсутствие:</div>
+                                    <div className="info-value">
+                                        {getLeaveTypeName(employee.leaveType)}
+                                        {employee.leaveStartDate && employee.leaveEndDate && (
+                                            <span className="info-subvalue">
+                                                {' '}({formatDate(employee.leaveStartDate)} — {formatDate(employee.leaveEndDate)})
+                                            </span>
+                                        )}
+                                    </div>
+                                </>
+                            )}
                         </div>
                     </div>
                 </div>

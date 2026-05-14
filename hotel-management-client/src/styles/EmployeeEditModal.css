@@ -353,3 +353,33 @@
     font-size: 14px;
     cursor: not-allowed;
 }
+
+/* Стили для секций отпуска и больничного */
+.vacation-section,
+.sick-leave-section {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-color);
+}
+
+    .vacation-section h4,
+    .sick-leave-section h4 {
+        margin: 0 0 16px 0;
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+
+/* Единая секция для отсутствия */
+.leave-section {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-color);
+}
+
+    .leave-section h4 {
+        margin: 0 0 16px 0;
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--text-primary);
+    }

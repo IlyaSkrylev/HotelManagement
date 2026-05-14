@@ -23,7 +23,10 @@ public record UpdateEmployeeCommand(
     TimeOnly NightShiftEnd,
     bool ShiftCycleStartsWithDay,
     DateTimeOffset ShiftCycleStartDate,
-    int TotalCycleDays) : IRequest<EmployeeDto>;
+    int TotalCycleDays,
+    DateTimeOffset? VacationStartDate = null,
+    DateTimeOffset? VacationEndDate = null,
+    string? VacationType = null) : IRequest<EmployeeDto>;
 
 public class UpdateEmployeeCommandHandler : IRequestHandler<UpdateEmployeeCommand, EmployeeDto>
 {
@@ -61,7 +64,6 @@ public class UpdateEmployeeCommandHandler : IRequestHandler<UpdateEmployeeComman
         var newRole = await _context.UserRoles
             .FirstOrDefaultAsync(r => r.Id == request.RoleId, cancellationToken);
 
-        
         if (oldRole?.Code == "manager" && newRole?.Code != "manager")
         {
             var departmentsWhereManager = await _context.Departments
@@ -130,6 +132,10 @@ public class UpdateEmployeeCommandHandler : IRequestHandler<UpdateEmployeeComman
         employee.ShiftCycleStartDate = request.ShiftCycleStartDate.ToUniversalTime();
         employee.ShiftCycleStartsWithDay = request.ShiftCycleStartsWithDay;
         employee.UpdatedAt = DateTimeOffset.UtcNow;
+
+        employee.VacationStartDate = request.VacationStartDate?.ToUniversalTime();
+        employee.VacationEndDate = request.VacationEndDate?.ToUniversalTime();
+        employee.VacationType = request.VacationType;
 
         if (employee.ShiftType != null)
         {

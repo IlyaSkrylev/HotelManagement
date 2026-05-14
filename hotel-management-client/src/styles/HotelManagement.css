@@ -323,3 +323,19 @@
         gap: 0;
     }
 }
+
+
+.sidebar-divider {
+    padding: 12px 20px 8px 20px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+    border-top: 1px solid var(--border-color);
+    margin-top: 8px;
+}
+
+    .sidebar-divider:first-of-type {
+        border-top: none;
+        margin-top: 0;
+    }

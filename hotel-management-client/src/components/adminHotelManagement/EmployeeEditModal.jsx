@@ -31,7 +31,10 @@ function EmployeeEditModal({
         nightShiftStart: '21:00',
         nightShiftEnd: '06:00',
         shiftCycleStartsWithDay: true,
-        shiftCycleStartDate: new Date().toISOString().split('T')[0]
+        shiftCycleStartDate: new Date().toISOString().split('T')[0],
+        vacationStartDate: '',
+        vacationEndDate: '',
+        vacationType: ''
     })
     const [error, setError] = useState('')
     const [submitting, setSubmitting] = useState(false)
@@ -41,13 +44,23 @@ function EmployeeEditModal({
     const [isRoleDropdownOpen, setIsRoleDropdownOpen] = useState(false)
     const [isDepartmentDropdownOpen, setIsDepartmentDropdownOpen] = useState(false)
     const [isCycleStartDropdownOpen, setIsCycleStartDropdownOpen] = useState(false)
+    const [isVacationTypeDropdownOpen, setIsVacationTypeDropdownOpen] = useState(false)
 
     const roleDropdownRef = useRef(null)
     const departmentDropdownRef = useRef(null)
     const cycleStartDropdownRef = useRef(null)
+    const vacationTypeDropdownRef = useRef(null)
 
-    const isHireMode = isApprovedResume && !initialData?.id 
+    const isHireMode = isApprovedResume && !initialData?.id
     const isEditMode = !isApprovedResume && initialData?.id
+
+    const formatDateToInput = (dateString) => {
+        if (!dateString) return ''
+        if (dateString.match(/^\d{4}-\d{2}-\d{2}$/)) return dateString
+        const date = new Date(dateString)
+        if (isNaN(date.getTime())) return ''
+        return date.toISOString().split('T')[0]
+    }
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -59,6 +72,9 @@ function EmployeeEditModal({
             }
             if (cycleStartDropdownRef.current && !cycleStartDropdownRef.current.contains(event.target)) {
                 setIsCycleStartDropdownOpen(false)
+            }
+            if (vacationTypeDropdownRef.current && !vacationTypeDropdownRef.current.contains(event.target)) {
+                setIsVacationTypeDropdownOpen(false)
             }
         }
         document.addEventListener('mousedown', handleClickOutside)
@@ -90,7 +106,10 @@ function EmployeeEditModal({
                 nightShiftStart: initialData.nightShiftStart || '21:00',
                 nightShiftEnd: initialData.nightShiftEnd || '06:00',
                 shiftCycleStartsWithDay: initialData.shiftCycleStartsWithDay !== undefined ? initialData.shiftCycleStartsWithDay : true,
-                shiftCycleStartDate: initialData.shiftCycleStartDate || new Date().toISOString().split('T')[0]
+                shiftCycleStartDate: formatDateToInput(initialData.shiftCycleStartDate) || new Date().toISOString().split('T')[0],
+                vacationStartDate: formatDateToInput(initialData.vacationStartDate),
+                vacationEndDate: formatDateToInput(initialData.vacationEndDate),
+                vacationType: initialData.vacationType || ''
             })
             calculateTotalCycleDays(
                 initialData.workingDayShifts || 0,
@@ -104,27 +123,7 @@ function EmployeeEditModal({
 
     useEffect(() => {
         if (!isOpen) {
-            setFormData({
-                roleId: '',
-                departmentId: '',
-                position: '',
-                salary: '',
-                salarySupplement: '',
-                workingDayShifts: 0,
-                workingNightShifts: 0,
-                restDays: 0,
-                dayShiftStart: '09:00',
-                dayShiftEnd: '18:00',
-                nightShiftStart: '21:00',
-                nightShiftEnd: '06:00',
-                shiftCycleStartsWithDay: true,
-                shiftCycleStartDate: new Date().toISOString().split('T')[0]
-            })
-            setTotalCycleDays(0)
-            setError('')
-            setIsRoleDropdownOpen(false)
-            setIsDepartmentDropdownOpen(false)
-            setIsCycleStartDropdownOpen(false)
+            resetForm()
         }
     }, [isOpen])
 
@@ -174,10 +173,17 @@ function EmployeeEditModal({
             nightShiftStart: '21:00',
             nightShiftEnd: '06:00',
             shiftCycleStartsWithDay: true,
-            shiftCycleStartDate: new Date().toISOString().split('T')[0]
+            shiftCycleStartDate: new Date().toISOString().split('T')[0],
+            vacationStartDate: '',
+            vacationEndDate: '',
+            vacationType: ''
         })
         setTotalCycleDays(0)
         setError('')
+        setIsRoleDropdownOpen(false)
+        setIsDepartmentDropdownOpen(false)
+        setIsCycleStartDropdownOpen(false)
+        setIsVacationTypeDropdownOpen(false)
     }
 
     const calculateTotalCycleDays = (dayShifts, nightShifts, rest) => {
@@ -248,7 +254,10 @@ function EmployeeEditModal({
                 shiftCycleStartDate: shiftCycleStartDate,
                 totalCycleDays: (parseInt(formData.workingDayShifts) || 0) +
                     (parseInt(formData.workingNightShifts) || 0) +
-                    (parseInt(formData.restDays) || 0)
+                    (parseInt(formData.restDays) || 0),
+                vacationStartDate: formData.vacationStartDate ? new Date(formData.vacationStartDate).toISOString() : null,
+                vacationEndDate: formData.vacationEndDate ? new Date(formData.vacationEndDate).toISOString() : null,
+                vacationType: formData.vacationType || null
             }
 
             await onSubmit(submitData)
@@ -277,6 +286,16 @@ function EmployeeEditModal({
 
     const getCycleStartLabel = () => {
         return formData.shiftCycleStartsWithDay ? 'Дневной смены' : 'Ночной смены'
+    }
+
+    const getVacationTypeLabel = () => {
+        const types = {
+            'vacation': 'Отпуск',
+            'sick_leave': 'Больничный',
+            'unpaid': 'Отпуск без сохранения зарплаты',
+            'maternity': 'Декретный отпуск'
+        }
+        return types[formData.vacationType] || 'Выберите тип'
     }
 
     const needDepartment = () => {
@@ -554,6 +573,87 @@ function EmployeeEditModal({
                                         )}
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="vacation-section">
+                        <h4>Отсутствие на работе</h4>
+                        <div className="form-row">
+                            <div className="form-group">
+                                <label>Тип отсутствия</label>
+                                <div className="custom-select" ref={vacationTypeDropdownRef}>
+                                    <button
+                                        className={`custom-select-trigger ${isVacationTypeDropdownOpen ? 'open' : ''}`}
+                                        onClick={() => setIsVacationTypeDropdownOpen(!isVacationTypeDropdownOpen)}
+                                        type="button"
+                                    >
+                                        <span>{getVacationTypeLabel()}</span>
+                                        <span className="select-arrow">{isVacationTypeDropdownOpen ? '▲' : '▼'}</span>
+                                    </button>
+                                    {isVacationTypeDropdownOpen && (
+                                        <div className="custom-select-dropdown">
+                                            <div
+                                                className={`select-option ${formData.vacationType === 'vacation' ? 'active' : ''}`}
+                                                onClick={() => {
+                                                    setFormData({ ...formData, vacationType: 'vacation' })
+                                                    setIsVacationTypeDropdownOpen(false)
+                                                }}
+                                            >
+                                                Отпуск
+                                                {formData.vacationType === 'vacation' && <span className="option-check">✓</span>}
+                                            </div>
+                                            <div
+                                                className={`select-option ${formData.vacationType === 'sick_leave' ? 'active' : ''}`}
+                                                onClick={() => {
+                                                    setFormData({ ...formData, vacationType: 'sick_leave' })
+                                                    setIsVacationTypeDropdownOpen(false)
+                                                }}
+                                            >
+                                                Больничный
+                                                {formData.vacationType === 'sick_leave' && <span className="option-check">✓</span>}
+                                            </div>
+                                            <div
+                                                className={`select-option ${formData.vacationType === 'unpaid' ? 'active' : ''}`}
+                                                onClick={() => {
+                                                    setFormData({ ...formData, vacationType: 'unpaid' })
+                                                    setIsVacationTypeDropdownOpen(false)
+                                                }}
+                                            >
+                                                Отпуск без сохранения зарплаты
+                                                {formData.vacationType === 'unpaid' && <span className="option-check">✓</span>}
+                                            </div>
+                                            <div
+                                                className={`select-option ${formData.vacationType === 'maternity' ? 'active' : ''}`}
+                                                onClick={() => {
+                                                    setFormData({ ...formData, vacationType: 'maternity' })
+                                                    setIsVacationTypeDropdownOpen(false)
+                                                }}
+                                            >
+                                                Декретный отпуск
+                                                {formData.vacationType === 'maternity' && <span className="option-check">✓</span>}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                        <div className="form-row">
+                            <div className="form-group">
+                                <label>Дата начала</label>
+                                <input
+                                    type="date"
+                                    value={formData.vacationStartDate}
+                                    onChange={(e) => setFormData({ ...formData, vacationStartDate: e.target.value })}
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label>Дата окончания</label>
+                                <input
+                                    type="date"
+                                    value={formData.vacationEndDate}
+                                    onChange={(e) => setFormData({ ...formData, vacationEndDate: e.target.value })}
+                                />
                             </div>
                         </div>
                     </div>

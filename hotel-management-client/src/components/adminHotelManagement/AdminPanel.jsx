@@ -1,6 +1,6 @@
 import React from 'react'
 
-function AdminPanel({ activeTab, setActiveTab, hotelInfo, locationIconUrl, phoneIconUrl, emailIconUrl, hotelIconUrl, hotelId }) {
+function AdminPanel({ activeTab, setActiveTab, hotelInfo, locationIconUrl, phoneIconUrl, emailIconUrl, hotelIconUrl, hotelId, currentEmployeeId }) {
     return (
         <div className="hotel-management-sidebar">
             <div className="hotel-management-image">
@@ -43,6 +43,8 @@ function AdminPanel({ activeTab, setActiveTab, hotelInfo, locationIconUrl, phone
                 </p>
             </div>
 
+            <div className="sidebar-divider">Управление гостиницей</div>
+
             <button
                 className={`sidebar-tab ${activeTab === 'edit' ? 'active' : ''}`}
                 onClick={() => setActiveTab('edit')}
@@ -78,6 +80,21 @@ function AdminPanel({ activeTab, setActiveTab, hotelInfo, locationIconUrl, phone
                 onClick={() => setActiveTab('resumes')}
             >
                 Заявки
+            </button>
+
+            <div className="sidebar-divider">Личный кабинет</div>
+
+            <button
+                className={`sidebar-tab ${activeTab === 'my-tasks' ? 'active' : ''}`}
+                onClick={() => setActiveTab('my-tasks')}
+            >
+                Мои задачи
+            </button>
+            <button
+                className={`sidebar-tab ${activeTab === 'my-schedule' ? 'active' : ''}`}
+                onClick={() => setActiveTab('my-schedule')}
+            >
+                Мой график
             </button>
         </div>
     )

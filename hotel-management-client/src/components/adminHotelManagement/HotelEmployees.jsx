@@ -290,7 +290,10 @@ function HotelEmployees({ hotelId, userRole, currentUserDepartmentId, currentUse
                     nightShiftEnd: data.nightShiftEnd || '06:00',
                     shiftCycleStartsWithDay: data.shiftCycleStartsWithDay,
                     shiftCycleStartDate: data.shiftCycleStartDate,
-                    totalCycleDays: data.totalCycleDays || 0
+                    totalCycleDays: data.totalCycleDays || 0,
+                    vacationStartDate: data.vacationStartDate,
+                    vacationEndDate: data.vacationEndDate,
+                    vacationType: data.vacationType
                 }
 
                 await hotelApi.updateEmployee(editingEmployee.id, updateData)

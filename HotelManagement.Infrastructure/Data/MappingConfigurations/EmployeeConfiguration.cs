@@ -73,6 +73,16 @@ public class EmployeeConfiguration : IEntityTypeConfiguration<Employee>
             .HasDefaultValue(true)
             .IsRequired();
 
+        builder.Property(x => x.VacationStartDate)
+            .HasColumnName("vacation_start_date");
+
+        builder.Property(x => x.VacationEndDate)
+            .HasColumnName("vacation_end_date");
+
+        builder.Property(x => x.VacationType)
+            .HasColumnName("vacation_type")
+            .HasMaxLength(50);
+
         builder.HasOne(x => x.User)
             .WithMany(u => u.Employees)
             .HasForeignKey(x => x.UserId)
