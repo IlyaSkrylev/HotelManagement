@@ -125,3 +125,17 @@ th {
         padding: 16px;
     }
 }
+
+:root {
+    --bg-hover: rgba(128, 128, 128, 0.08);
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg-hover: rgba(200, 200, 200, 0.08);
+    }
+}
+
+.operation-row:hover {
+    background-color: var(--bg-hover);
+}

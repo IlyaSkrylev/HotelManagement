@@ -5,9 +5,10 @@ import Pagination from '../Pagination'
 import EmployeeEditModal from './EmployeeEditModal'
 import EmployeeViewModal from './EmployeeViewModal'
 import FireEmployeeModal from './FireEmployeeModal'
+import FinancialOperationsModal from './FinancialOperationsModal'
 import '../../styles/HotelEmployees.css'
 
-function HotelEmployees({ hotelId, userRole, currentUserDepartmentId, currentUserDepartmentName }) {
+function HotelEmployees({ hotelId, userRole, currentUserDepartmentId, currentUserDepartmentName, currentEmployeeId }) {
     const [employees, setEmployees] = useState([])
     const [archivedEmployees, setArchivedEmployees] = useState([])
     const [approvedUsers, setApprovedUsers] = useState([])
@@ -34,6 +35,14 @@ function HotelEmployees({ hotelId, userRole, currentUserDepartmentId, currentUse
 
     const isManager = userRole === 'manager'
     const isAdmin = userRole === 'admin'
+
+    const [financialModalOpen, setFinancialModalOpen] = useState(false)
+    const [selectedEmployeeForFinance, setSelectedEmployeeForFinance] = useState(null)
+
+    const handleFinancialOperations = (employee) => {
+        setSelectedEmployeeForFinance(employee)
+        setFinancialModalOpen(true)
+    }
 
     const [employeesPagination, setEmployeesPagination] = useState({
         currentPage: 1,
@@ -467,6 +476,17 @@ function HotelEmployees({ hotelId, userRole, currentUserDepartmentId, currentUse
                                             </button>
                                         ) : (
                                             <>
+                                                    <button
+                                                        className="financial-employee-btn"
+                                                        onClick={() => handleFinancialOperations(emp)}
+                                                        title="Финансовые операции"
+                                                    >
+                                                        <img
+                                                            src={getIconUrl('financial')}
+                                                            alt="financial"
+                                                            style={{ width: '20px', height: '20px', verticalAlign: 'middle' }}
+                                                        />
+                                                    </button>
                                                 <button className="edit-employee-btn" onClick={() => handleEditEmployee(emp)}>
                                                     Изменить
                                                 </button>
@@ -584,6 +604,17 @@ function HotelEmployees({ hotelId, userRole, currentUserDepartmentId, currentUse
                 }}
                 onConfirm={confirmFireEmployee}
                 employeeName={employeeToFire ? `${employeeToFire.lastName} ${employeeToFire.firstName}` : ''}
+            />
+
+            <FinancialOperationsModal
+                isOpen={financialModalOpen}
+                onClose={() => setFinancialModalOpen(false)}
+                employeeId={selectedEmployeeForFinance?.id}
+                employeeName={selectedEmployeeForFinance ? `${selectedEmployeeForFinance.lastName} ${selectedEmployeeForFinance.firstName}` : ''}
+                employeeAvatar={selectedEmployeeForFinance?.avatarUrl}
+                currentSalary={selectedEmployeeForFinance?.salary}
+                currentBonus={selectedEmployeeForFinance?.salarySupplement}
+                currentEmployeeId={currentEmployeeId}
             />
         </div>
     )

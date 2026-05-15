@@ -57,6 +57,12 @@ function EmployeePanel({ activeTab, setActiveTab, hotelInfo, locationIconUrl, ph
             >
                 Мой график
             </button>
+            <button
+                className={`sidebar-tab ${activeTab === 'my-finance' ? 'active' : ''}`}
+                onClick={() => setActiveTab('my-finance')}
+            >
+                Мои финансы
+            </button>
         </div>
     )
 }

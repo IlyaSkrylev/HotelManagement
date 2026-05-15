@@ -11,9 +11,11 @@ import HotelTasks from '../components/adminHotelManagement/HotelTasks'
 import AdminPanel from '../components/adminHotelManagement/AdminPanel'
 import ManagerPanel from '../components/managerHotelManagement/ManagerPanel'
 import DepartmentSchedule from '../components/managerHotelManagement/DepartmentSchedule'
+import DepartmentFinancialPage from '../components/managerHotelManagement/DepartmentFinancialPage'
 import EmployeePanel from '../components/employeeHotelManagement/EmployeePanel'
 import EmployeeTasks from '../components/employeeHotelManagement/EmployeeTasks'
 import EmployeeSchedule from '../components/employeeHotelManagement/EmployeeSchedule'
+import EmployeeFinancialPage from '../components/employeeHotelManagement/EmployeeFinancialPage'
 import '../styles/HotelManagement.css'
 
 function HotelManagement() {
@@ -146,6 +148,7 @@ function HotelManagement() {
                             userRole={userRole}
                             currentUserDepartmentId={currentUserDepartmentId}
                             currentUserDepartmentName={currentUserDepartmentName}
+                            currentEmployeeId={currentEmployeeId}
                         />
                     )
                 case 'tasks':
@@ -182,6 +185,17 @@ function HotelManagement() {
                             currentEmployeeId={currentEmployeeId}
                         />
                     )
+                case 'my-finance':
+                    if (!currentEmployeeId) {
+                        return <div className="loading">Загрузка данных сотрудника...</div>
+                    }
+                    return (
+                        <EmployeeFinancialPage
+                            employeeId={currentEmployeeId}
+                            employeeName={hotelInfo?.userRole || 'Администратор'}
+                            employeeAvatar={hotelInfo?.imageUrl}
+                        />
+                    )
                 default:
                     return null
             }
@@ -196,6 +210,7 @@ function HotelManagement() {
                             userRole={userRole}
                             currentUserDepartmentId={currentUserDepartmentId}
                             currentUserDepartmentName={currentUserDepartmentName}
+                            currentEmployeeId={currentEmployeeId}
                         />
                     )
                 case 'tasks':
@@ -240,6 +255,28 @@ function HotelManagement() {
                             departmentName={currentUserDepartmentName}
                         />
                     )
+                case 'department-finance':  
+                    if (!currentUserDepartmentId) {
+                        return <div className="loading">Загрузка...</div>
+                    }
+                    return (
+                        <DepartmentFinancialPage
+                            departmentId={currentUserDepartmentId}
+                            departmentName={currentUserDepartmentName}
+                            currentEmployeeId={currentEmployeeId}
+                        />
+                    )
+                case 'my-finance':
+                    if (!currentEmployeeId) {
+                        return <div className="loading">Загрузка данных сотрудника...</div>
+                    }
+                    return (
+                        <EmployeeFinancialPage
+                            employeeId={currentEmployeeId}
+                            employeeName={hotelInfo?.userRole || 'Менеджер'}
+                            employeeAvatar={hotelInfo?.imageUrl}
+                        />
+                    )
                 default:
                     return null
             }
@@ -266,6 +303,18 @@ function HotelManagement() {
                         <EmployeeSchedule
                             hotelId={hotelId}
                             currentEmployeeId={currentEmployeeId}
+                        />
+                    )
+                case 'my-finance':  
+                    if (!currentEmployeeId) {
+                        return <div className="loading">Загрузка данных сотрудника...</div>
+                    }
+                    const employeeFullName = `${hotelInfo?.userRole || 'Сотрудник'}`
+                    return (
+                        <EmployeeFinancialPage
+                            employeeId={currentEmployeeId}
+                            employeeName={employeeFullName}
+                            employeeAvatar={hotelInfo?.imageUrl}
                         />
                     )
                 default:

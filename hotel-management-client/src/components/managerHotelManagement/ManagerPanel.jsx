@@ -71,6 +71,13 @@ function ManagerPanel({ activeTab, setActiveTab, hotelInfo, locationIconUrl, pho
                 График отдела
             </button>
 
+            <button
+                className={`sidebar-tab ${activeTab === 'department-finance' ? 'active' : ''}`}
+                onClick={() => setActiveTab('department-finance')}
+            >
+                Финансы отдела
+            </button>
+
             <div className="sidebar-divider">Личный кабинет</div>
 
             <button
@@ -84,6 +91,12 @@ function ManagerPanel({ activeTab, setActiveTab, hotelInfo, locationIconUrl, pho
                 onClick={() => setActiveTab('my-schedule')}
             >
                 Мой график
+            </button>
+            <button
+                className={`sidebar-tab ${activeTab === 'my-finance' ? 'active' : ''}`}
+                onClick={() => setActiveTab('my-finance')}
+            >
+                Мои финансы
             </button>
         </div>
     )

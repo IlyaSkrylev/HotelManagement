@@ -1,0 +1,286 @@
+.employee-financial-page {
+    padding: 24px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.employee-financial-header h2 {
+    margin: 0 0 24px 0;
+    font-size: 28px;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+}
+
+/* Убираем аватарку и подпись - скрываем блок */
+.employee-financial-info {
+    display: none;
+}
+
+.financial-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 32px;
+}
+
+.stat-card {
+    background: var(--bg-card);
+    border-radius: 16px;
+    padding: 16px;
+    text-align: center;
+    box-shadow: var(--shadow);
+}
+
+    .stat-card.salary {
+        border-top: 3px solid #27ae60;
+    }
+
+    .stat-card.fine {
+        border-top: 3px solid #e74c3c;
+    }
+
+    .stat-card.total {
+        border-top: 3px solid var(--accent-primary);
+    }
+
+    .stat-card.salary .stat-value {
+        color: #27ae60;
+    }
+
+    .stat-card.fine .stat-value {
+        color: #e74c3c;
+    }
+
+.stat-label {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+}
+
+.stat-value {
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.stat-card.salary .stat-value {
+    color: #27ae60;
+}
+
+.stat-card.bonus .stat-value {
+    color: #f39c12;
+}
+
+.stat-card.fine .stat-value {
+    color: #e74c3c;
+}
+
+.financial-filters {
+    display: flex;
+    gap: 16px;
+    align-items: flex-end;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+    .filter-group label {
+        font-size: 13px;
+        color: var(--text-secondary);
+    }
+
+.date-input {
+    padding: 10px 14px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--bg-card);
+    color: var(--text-primary);
+    font-size: 14px;
+}
+
+    .date-input:focus {
+        outline: none;
+        border-color: var(--accent-primary);
+    }
+
+.reset-filters-btn {
+    padding: 10px 20px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-primary);
+    transition: all 0.2s ease;
+}
+
+    .reset-filters-btn:hover {
+        background: #e74c3c;
+        color: white;
+        border-color: #e74c3c;
+    }
+
+.financial-operations {
+    background: var(--bg-card);
+    border-radius: 20px;
+    padding: 24px;
+    box-shadow: var(--shadow);
+}
+
+    .financial-operations h3 {
+        margin: 0 0 20px 0;
+        font-size: 18px;
+        font-weight: 600;
+        border-bottom: 2px solid var(--accent-primary);
+        display: inline-block;
+        padding-bottom: 8px;
+        color: var(--text-primary);
+    }
+
+.operations-table {
+    width: 100%;
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    overflow-x: auto;
+}
+
+.operations-header {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 2.5fr;
+    background: var(--bg-secondary);
+    padding: 14px 18px;
+    font-weight: 600;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-secondary);
+}
+
+.operation-row {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 2.5fr;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border-color);
+    transition: background-color 0.2s ease;
+    color: var(--text-primary);
+}
+
+    /* Наведение - только фон, без белого цвета */
+    .operation-row:hover {
+        background-color: rgba(128, 128, 128, 0.1);
+    }
+
+/* Для темной темы - чуть светлее */
+@media (prefers-color-scheme: dark) {
+    .operation-row:hover {
+        background-color: rgba(200, 200, 200, 0.1);
+    }
+}
+
+.operation-row .amount span.positive {
+    color: #27ae60;
+    font-weight: 700;
+}
+
+.operation-row .amount span.negative {
+    color: #e74c3c;
+    font-weight: 700;
+}
+
+.pagination-info {
+    text-align: center;
+    margin-top: 20px;
+    padding: 12px;
+    color: var(--text-secondary);
+    font-size: 13px;
+    border-top: 1px solid var(--border-color);
+}
+
+.loading, .no-data {
+    text-align: center;
+    padding: 40px;
+    color: var(--text-secondary);
+}
+
+.financial-error {
+    background: rgba(231, 76, 60, 0.1);
+    border-left: 4px solid #e74c3c;
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    color: #e74c3c;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .employee-financial-page {
+        padding: 16px;
+    }
+
+    .financial-stats {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+
+    .financial-filters {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .filter-group {
+        width: 100%;
+    }
+
+    .date-input {
+        width: 100%;
+    }
+
+    .reset-filters-btn {
+        width: 100%;
+        margin-top: 8px;
+    }
+
+    .operations-header {
+        display: none;
+    }
+
+    .operation-row {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        border-radius: 12px;
+        margin-bottom: 12px;
+        border: 1px solid var(--border-color);
+    }
+
+        .operation-row > div {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+            .operation-row > div::before {
+                content: attr(data-label);
+                font-weight: 600;
+                color: var(--text-secondary);
+                font-size: 12px;
+            }
+
+        .operation-row .date::before {
+            content: "Дата:";
+        }
+
+        .operation-row .amount::before {
+            content: "Сумма:";
+        }
+
+        .operation-row .description::before {
+            content: "Описание:";
+        }
+}
